@@ -5,45 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Healing Rel.">
-<title>Healing Relationships</title>
+<meta name="apple-mobile-web-app-title" content="Helping Rel.">
+<title>Helping Relationships</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;
   --bg:#F9F9F7;--surface:#FFFFFF;--border:#E5E3DC;
   --text:#1C1C1A;--muted:#6B6B67;--hint:#A0A09C;
-  --radius:12px;--radius-sm:8px;
+  --radius:12px;
 }
 @media(prefers-color-scheme:dark){
   :root{--bg:#141412;--surface:#1E1E1B;--border:#2E2E2A;--text:#F0EFE8;--muted:#9A9A96;--hint:#5A5A56;--green-light:#0a3326;}
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-.topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:12px;height:56px}
-.topbar h1{font-size:17px;font-weight:600;flex:1;color:var(--text)}
-.topbar .subtitle{font-size:12px;color:var(--muted);font-weight:400;display:block}
+/* Topbar */
+.topbar{position:sticky;top:0;z-index:200;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:10px;height:56px}
+.topbar-title{flex:1}
+.topbar-title span{font-size:17px;font-weight:600;color:var(--text);display:block}
+.topbar-title small{font-size:11px;color:var(--muted)}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--hint);flex-shrink:0;transition:background 0.3s}
 .sync-dot.syncing{background:#E8A020;animation:pulse 1s infinite}
 .sync-dot.ok{background:var(--green)}
 .sync-dot.err{background:#C0392B}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
+/* Stats */
 .stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
 .stat-cell{background:var(--surface);padding:10px 8px;text-align:center}
 .stat-cell .val{font-size:18px;font-weight:600;color:var(--text);display:block}
 .stat-cell .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-top:1px}
-
-.prog-wrap{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px 12px}
+.prog-wrap{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px 10px}
 .prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:10px}
 .prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.4s ease}
 
-.filters{padding:12px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--bg)}
+/* Filters */
+.filters{padding:10px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--bg)}
 .filters::-webkit-scrollbar{display:none}
-.filter-btn{flex-shrink:0;font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s}
+.filter-btn{flex-shrink:0;font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .filter-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
 
-.weeks{padding:0 16px 32px}
+/* Weeks */
+.weeks{padding:0 16px 80px}
 .week{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
 .week-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 .week-hdr:active{background:var(--bg)}
@@ -61,38 +65,77 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .week-prog{height:3px;background:var(--border)}
 .week-prog-fill{height:100%;background:var(--green);transition:width 0.3s}
 
+/* Section label */
 .sec-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;padding:12px 16px 4px}
-.task{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-top:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.1s}
+
+/* Task */
+.task{display:flex;align-items:flex-start;gap:10px;padding:11px 16px;border-top:1px solid var(--border);-webkit-tap-highlight-color:transparent}
 .task:active{background:var(--bg)}
-.task-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.15s}
+.task-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all 0.15s}
 .task-check.checked{background:var(--green);border-color:var(--green)}
 .task-check.checked::after{content:'✓';color:#fff;font-size:13px;font-weight:700;line-height:1}
 .task-body{flex:1;min-width:0}
 .task-name{font-size:14px;color:var(--text);line-height:1.4}
 .task-name.done{color:var(--hint);text-decoration:line-through}
 .task-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.task-actions{display:flex;gap:6px;margin-top:6px}
 .pill{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
 .pill-time{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
 .pill-due{background:#FFF8EC;color:#8B5E00;border:1px solid #FAECC5}
 .pill-pts{background:var(--green-light);color:var(--green-dark);border:1px solid #9FE1CB}
 @media(prefers-color-scheme:dark){.pill-due{background:#2A1F08;color:#E8C56A;border-color:#4A3510}}
+
+/* Action buttons on task */
+.task-btn{font-size:12px;padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;gap:4px}
+.task-btn:active{background:var(--border)}
+.task-btn.notes-btn{color:var(--green);border-color:var(--green-light)}
+.task-btn.audio-btn{color:#185FA5;border-color:#B5D4F4}
+@media(prefers-color-scheme:dark){
+  .task-btn.notes-btn{color:#5DCAA5;border-color:#085041}
+  .task-btn.audio-btn{color:#85B7EB;border-color:#0C447C}
+}
+
 .empty{padding:20px 16px;font-size:13px;color:var(--muted);text-align:center}
 @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
 .task-check.pop{animation:pop 0.2s ease}
 
-.setup-banner{background:#FFF8EC;border:1px solid #FAECC5;border-radius:var(--radius);margin:16px 16px 0;padding:14px 16px;font-size:13px;color:#6B4A00;line-height:1.6}
-.setup-banner strong{font-weight:600;display:block;margin-bottom:4px;font-size:14px}
-.setup-banner.hidden{display:none}
+/* ── NOTES PANEL (slide up from bottom) ───────────────────── */
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.panel-overlay.open{opacity:1;pointer-events:all}
+.panel{position:fixed;bottom:0;left:0;right:0;z-index:301;background:var(--surface);border-radius:20px 20px 0 0;max-height:90vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1)}
+.panel.open{transform:translateY(0)}
+.panel-drag{width:36px;height:4px;border-radius:2px;background:var(--border);margin:12px auto 0}
+.panel-header{padding:12px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.panel-title{font-size:16px;font-weight:600;color:var(--text)}
+.panel-subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+.panel-close{position:absolute;right:14px;top:14px;width:28px;height:28px;border-radius:50%;background:var(--bg);border:none;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.panel-body{overflow-y:auto;flex:1;padding:0 16px 32px;-webkit-overflow-scrolling:touch}
+
+/* Notebook content */
+.nb-section{margin-top:16px}
+.nb-section-heading{font-size:13px;font-weight:600;color:var(--green-dark);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--green-light)}
+@media(prefers-color-scheme:dark){.nb-section-heading{color:#5DCAA5;border-color:#0a3326}}
+.nb-item{font-size:14px;color:var(--text);line-height:1.55;padding:4px 0 4px 12px;border-left:2px solid var(--border);margin-bottom:4px}
+.nb-item.scripture{font-style:italic;color:var(--muted);border-left-color:var(--green-light)}
+.nb-placeholder{font-size:13px;color:var(--hint);font-style:italic;padding:4px 0 4px 12px;border-left:2px dashed var(--border)}
+
+/* Notes textarea */
+.notes-section{margin-top:20px}
+.notes-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.notes-saved{font-size:11px;color:var(--green);font-weight:400;text-transform:none;letter-spacing:0;opacity:0;transition:opacity 0.3s}
+.notes-saved.show{opacity:1}
+.notes-area{width:100%;min-height:120px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);background:var(--bg);resize:vertical;line-height:1.6;outline:none}
+.notes-area:focus{border-color:var(--green)}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div style="flex:1">
-    <span style="font-size:17px;font-weight:600;color:var(--text)">Healing Relationships</span>
-    <span class="subtitle">CCEF Biblical Counseling · June–August 2025</span>
+  <div class="topbar-title">
+    <span>Helping Relationships</span>
+    <small>CCEF Biblical Counseling · June–August 2025</small>
   </div>
-  <div class="sync-dot" id="sync-dot" title="Sync status"></div>
+  <div class="sync-dot" id="sync-dot"></div>
 </div>
 
 <div class="stats-strip">
@@ -103,11 +146,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 <div class="prog-wrap">
   <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-</div>
-
-<div id="setup-banner" class="setup-banner">
-  <strong>⚙️ Setup required</strong>
-  Open this file in a text editor and replace <code>YOUR_SUPABASE_URL</code> and <code>YOUR_SUPABASE_ANON_KEY</code> near the top of the &lt;script&gt; section with your actual Supabase credentials, then re-upload to GitHub.
 </div>
 
 <div class="filters">
@@ -121,24 +159,327 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <div class="weeks" id="weeks"></div>
 
+<!-- Notes Panel -->
+<div class="panel-overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <div class="panel-drag"></div>
+  <div class="panel-header">
+    <div class="panel-title" id="panel-title">Lecture Notes</div>
+    <div class="panel-subtitle" id="panel-subtitle"></div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+</div>
+
 <script>
-// ── PASTE YOUR SUPABASE CREDENTIALS HERE ──────────────────────────────────
 const SUPABASE_URL = 'https://jhvfzpjexjlbfzazuutc.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmZ6cGpleGpsYmZ6YXp1dXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MTIzODMsImV4cCI6MjA5NzI4ODM4M30.Z8t0LDfIMdLfwVY-C0ieLeNxXfgt_7W47VIPyI6b1ck';
-// ─────────────────────────────────────────────────────────────────────────
+const LOCAL_KEY = 'helping-rel-v3';
 
-const CONFIGURED = !SUPABASE_URL.includes('YOUR_');
-const LOCAL_KEY = 'healing-rel-v2';
-
+const NOTEBOOK = {
+  1: {
+    title: "Lecture 1: Introduction",
+    sections: [
+      {h:"Introduction",items:[]},
+      {h:"Our goals",items:["To put it another way:", "First specific goal:", "Second specific goal:", "Third specific goal:"]},
+    ]
+  },
+  2: {
+    title: "Lecture 2: Key Passage",
+    sections: [
+      {h:"Ephesians 4:1-3, 7-8, 11-15 (ESV)",items:["1I therefore, a prisoner for the Lord, urge you to walk in a manner worthy of the calling to which you have been called, 2with all humility and gentleness, with patience, bearing with one another in love, 3eager to maintain the unity of the Spirit in the bond of peace", "7But grace was given to each one of us according to the measure of Christ\u2019s gift. 8Therefore it says,", "\u201cWhen he ascended on high, he led a host of captives,", "and he gave gifts to men.\u201d", "11And he gave the apostles, the prophets, the evangelists, the shepherds and teachers, 12to equip the saints for the work of ministry, for building up the body of Christ, 13until we all attain to the unity of the faith and the knowledge of the Son of God, to mature manhood, to the measure of the stature of the fullness of Christ, 14so that we may no longer be children, tossed to and fro by the waves and carried about by every wind of doctrine, by human cunning, by craftiness in deceitful schemes. 15Rather, speaking the truth in love, we are to grow up in every way into him who is the head, into Christ\u2026", "First point:", "Key idea:", "Second point:", "Key idea:"]},
+    ]
+  },
+  3: {
+    title: "Lecture 3: Hindrances",
+    sections: [
+      {h:"Hindrances",items:["One:", "Two:", "Three:"]},
+    ]
+  },
+  4: {
+    title: "Lecture 4: Life in God\u2019s House, Part 1",
+    sections: [
+      {h:"Introduction",items:["\u201cThis is the law for any case of leprous disease: for an itch, for leprous disease in a garment or in a house, and for a swelling or an eruption or a spot to show when it is unclean and when it is clean. This is the law for leprous disease.\u201d", "~ Leviticus 14:54-57 (ESV)", "\u201cSee, I have set before you today life and good, death and evil. If you obey the commandments of the LORD your God that I command you today, by loving the LORD your God, by walking in his ways, and by keeping his commandments and his statutes and his rules then you shall live and multiply\u2026\u201d", "~ Deuteronomy 30:15-16A (ESV)", "Key Idea:", "Goal:", "Wisdom begins with the fear of the Lord.", "Outline:", "\u201cHe is the image of the invisible God, the firstborn of all creation. For by him all things were created, in heaven and on earth, visible and invisible, whether thrones or dominions or rulers or authorities \u2013 all things were created through him and for him. And he is before all things, and in him all things hold together.\u201d ~ Colossians 1:15-17 (ESV)"]},
+      {h:"We respond to him in fear",items:["\u201c\u2026Gather the people to me, that I may let them hear my words, so that they may learn to fear me all the days that they live on the earth, and that they may teach their children so.\u201d ~ Deuteronomy 4:10b (ESV)", "\u201cYou shall not wrong one another, but you shall fear your God, for I am the LORD your God.\u201d  ~ Leviticus 25:17 (ESV)", "Key Idea:"]},
+      {h:"We respond with \u201chelp\u201d",items:["Being unimpressive is the new strength.[^1]", "Prayer is our way of life."]},
+      {h:"Examples",items:["Example One:", "Example Two:"]},
+    ]
+  },
+  5: {
+    title: "Lecture 5: Life in God\u2019s House, Part 2",
+    sections: [
+      {h:"Introduction",items:[]},
+      {h:"God is your Father",items:["\u201cI am the LORD your God, who brought you out of the land of Egypt, out of the house of slavery.\u201d ~ Exodus 20:2 (ESV)", "\u201cIt is the LORD who goes before you. He will be with you; he will not leave you or forsake you. Do not fear or be dismayed.\u201d ~ Deuteronomy 31: 8 (ESV)", "God is your Father:", "Question: How do you take this familial love \u2018on the road\u2019?", "Key Idea:", "You are:", "God is your Father:", "Examples from Proverbs", "How will you speak?"]},
+      {h:"Your Father wants you to speak",items:["Key Idea:", "God wants you to speak:", "We try to respond in the same \u2018key\u2019.", "God wants you to speak:", "What does it mean to be personal?", "\u201cTo be a Christian is to live one\u2019s life not merely in obedience to God, nor merely in dependence on God, nor even merely for the sake of God; it is to stand in conscious, reciprocal fellowship with God, to be identified with Him in thought and purpose and work, to receive from Him and give back to Him in the ceaseless interplay of spiritual forces.\u201d", "~Geerhardus Vos[^2]", "\u201c\u2026According to this the covenant means that God gives Himself to man and man gives himself to God for that full measure of mutual acquaintance and enjoyment of which each side to the relationship is capable.\u201d", "~ Bill Edgar[^3]", "Key Idea:", "You Are:", "John 15:13-15", "How does this role \u2013 that, now, we have received again in God\u2019s house \u2013 how does it work its way out in our helping relationships and our daily conversations?", "Prayer as the pinnacle of relationships."]},
+    ]
+  },
+  6: {
+    title: "Lecture 6: Life in God\u2019s House, Part 3",
+    sections: [
+      {h:"Introduction/Review",items:["Questions", "1.)", "2.)", "3.)", "4.)", "5.)"]},
+      {h:"Wisdom is about life and death",items:["How this unfolds in the kingdom (example of grandkids)", "Wisdom about life & death:", "\u201c\u2026You may surely eat of every tree of the garden, but of the tree of the knowledge of good and evil you shall not eat, for in the day that you eat of it you shall surely die.\u201d ~ Genesis 2:16B-17 (ESV)", "\u201cGive your servant therefore an understanding mind to govern your people, that I may discern between good and evil, for who is able to govern this your great people?\u201d ~ 1 Kings 3:9 (ESV)", "\u201cWhy do you see the speck that is in your brother\u2019s eye, but do not notice the log that is in your own eye? Or how can you say to your brother, \u2018Let me take the speck out of your eye,\u2019 when there is a log in your own eye? You hypocrite, first take the log out of your own eye, and then you will see clearly to take the speck out of your brother\u2019s eye.\u201d  ~ Matthew 7:3-5 (ESV)", "Wisdom about life & death:", "We are more alert to Satan\u2019s devices.", "We begin to see that there are early warning signs.", "Key Idea:", "Wisdom about life & death:", "Wisdom looks up from God\u2019s word and to creation and other people and asks what works best.", "\u201cAs a Puritan once put it, the pastor must study two books, not just one. Certainly, he must know the book of Scripture\u2026He must also be a master in reading the book of the human heart. He must know men no less well than he knows his Bible.\u201d - J. I. Packer[^4]"]},
+      {h:"Wisdom moves out",items:["\u201cIt shall come to pass in the latter days that the mountain of the house of the LORD shall be established as the highest of the mountains, and shall be lifted up above the hills; and all the nations shall flow to it\u2026\u201d  ~ Isaiah 2:2 (ESV)", "Talk about it: here is what we do in God\u2019s house\u2026"]},
+    ]
+  },
+  7: {
+    title: "Lecture 7: Pursue & Know People",
+    sections: [
+      {h:"Model of Care",items:[]},
+      {h:"Pursue as you have been pursued",items:["You have been pursued", "\u201cAnd she did not know", "that it was I who gave her", "the grain, the wine, and the oil,", "and who lavished on her silver and gold,", "which they used for Baal\u201d", "~ Hosea 2:8 (ESV)", "Therefore, we turn our face to others"]},
+      {h:"Know people as you are known",items:["You are known", "Watch Jesus", "\u201c\u2026Now I know [him] in part; then I shall know fully, even as I have been fully known.\u201d ~ 1 Corinthians 13:12 (ESV)"]},
+      {h:"Know the person",items:["Here is a place where sometimes the world does it better than we do.", "Key Idea:", "What are you learning of a person who is close to you?", "Key Idea:"]},
+      {h:"Know people as you are known",items:["Key Idea:", "Conversation for small groups:", "Good, wise conversation brings people together."]},
+    ]
+  },
+  8: {
+    title: "Lecture 8: Know the Heart, Part 1",
+    sections: [
+      {h:"Introduction",items:["What are you learning about conversations and care?", "Key Idea:", "The Heart", "Jeremiah 17 -", "Proverbs 20:5 -", "\u201c\u2026For the Spirit searches everything, even the depths of God. For who knows a person\u2019s thoughts except the spirit of that person which is in him? So also no one comprehends the thoughts of God except the Spirit of God.\u201d  ~ 1 Corinthians 2:10-11 (ESV)", "Key Idea:"]},
+      {h:"Levels of the Human Heart",items:["Natural desire", "Life and Love", "Desire in Scripture", "Proverbs 13:12 -", "Luke 15:16 -", "Luke 16:21 -", "Revelation 9:6 -", "Luke 22:15 -", "1 Thessalonians 2:17 -", "Key Idea:", "Key Idea:", "Moral desire", "Good or Evil", "We recognize these desires are best put into the context of boundaries.", "You see the two paths of wisdom diverging.", "Matthew 15: 19 -", "Key Idea:", "Key Idea:"]},
+      {h:"Conclusion",items:[]},
+    ]
+  },
+  9: {
+    title: "Lecture 9: Know the Heart, Part 2",
+    sections: [
+      {h:"Introduction/Review",items:[]},
+      {h:"Godward desires",items:["\u201c\u2026one God and Father of all, who is over all and through all and in all.\u201d", "~ Ephesians 4:6 (ESV)", "\u201cYou stir him to take delight in praising you, for you have made us for yourself, and our heart is restless until it finds its rest in you\u201d - Augustine[^5]", "But, our hearts are complicated", "Key Idea:", "Key Idea:", "Application", "\u201cI always thank my God for you because of his grace given you in Christ Jesus. For in him you have been enriched in every way \u2013 with all kinds of speech and with all knowledge \u2013 God thus confirming our testimony about Christ among you. ~ 1 Corinthians 1:4-6 (NIV)"]},
+      {h:"Conclusion",items:[]},
+    ]
+  },
+  10: {
+    title: "Lecture 10: Know God & His Ways",
+    sections: [
+      {h:"Introduction",items:[]},
+      {h:"Know God & His ways",items:["What Scripture do we offer? How do we offer that Scripture?", "\u201cThe steadfast love of the LORD never ceases;", "his mercies never come to an end;", "they are new every morning;", "great is your faithfulness.", "\u2018The Lord is my portion,\u2019 says my soul,", "\u2018therefore I will hope in him.\u2019\u201d", "~ Lamentations 3:22-24 (ESV)", "Key Idea:", "\u201c\u2026that the God of our Lord Jesus Christ, the Father of glory, may give you the Spirit of wisdom and of revelation in the knowledge of him, having the eyes of your hearts enlightened, that you may know what is the hope to which he has called you\u2026\u201d ~ Ephesians 1:17-18a (ESV)", "\u201cAnd so, from the day we heard, we have not ceased to pray for you, asking that you may be filled with the knowledge of his will in all spiritual wisdom and understanding\u2026\u201d ~ Colossians 1:9 (ESV)", "Humility and love often says \u201cWe\u201d"]},
+      {h:"Pursue the person & remember them",items:["To truly be a pastor there is a long-term interest in the soul of another person."]},
+    ]
+  },
+  11: {
+    title: "Lecture 11: Skill 1- Accumulate Wisdom",
+    sections: [
+      {h:"Review",items:["Ephesians 4", "List of skills"]},
+      {h:"Accumulate wisdom in knowing people",items:["What do you see about wise conversations?", "What do you think of when you think of the best conversations?", "Things not to do", "Things to do"]},
+    ]
+  },
+  12: {
+    title: "Lecture 12: Skill 2 \u2013 Move Conversations",
+    sections: [
+      {h:"Move conversations toward life & love and away from death & distance",items:[]},
+      {h:"Move conversations with humility & love",items:["Do you like the person? Do you enjoy the person?", "What would you like to know about a person?", "How are you?", "Keep looking for hints of what is important to the person.", "\u201cLord, have mercy.\u201d", "Praying for people"]},
+    ]
+  },
+  13: {
+    title: "Lecture 13: Skill 3 \u2013 Self-Disclosure",
+    sections: [
+      {h:"Introduction",items:["Skill 3: Have reasons for self-disclosure"]},
+      {h:"Why talk about it?",items:[]},
+      {h:"General principles",items:["Life in God\u2019s house is knowing and being known.", "We are responsive to other people.", "We reveal ourselves when we ask for help or prayer.", "We\u2019re willing to speak about anything if we think it would be somehow good and edifying.", "The unspoken prayer request"]},
+      {h:"In initial conversations",items:[]},
+      {h:"With friends",items:["When it is about you", "When they speak"]},
+      {h:"When counseling",items:["Exceptions:", "Dr. Welch\u2019s leaning", "Empathy", "Other ways to express care"]},
+      {h:"Conclusion",items:["Try to find some time even today to run with this a little further."]},
+    ]
+  },
+  14: {
+    title: "Lecture 14: Skill 4 \u2013 Follow the Person, Part 1",
+    sections: [
+      {h:"Introduction",items:[]},
+      {h:"Follow the person & slow down at just the right time",items:["Two aids", "Humility & Love", "Listen for their heart", "Don\u2019t be thrown off by them making light of it.", "Key Idea:"]},
+      {h:"Slow down",items:["With pleasures & joys", "With hardships & pains", "Mental illness", "Key Idea:", "With things that are dark", "Christ is absent", "Examples", "Key Idea:", "Anger", "Addiction", "Are you looking for those things that are important? Can you discern what is important and less important? Do you know how to slow down?"]},
+    ]
+  },
+  15: {
+    title: "Lecture 15: Skill 4 \u2013 Follow the Person, Part 2",
+    sections: [
+      {h:"Introduction",items:[]},
+      {h:"Slow down",items:["When the work of the Spirit is obvious", "The work of the Spirit can sometimes be more subtle than we anticipate.", "Illustrations", "This is what the Apostle Paul does.", "\u201cI always thank my God for you because of the grace given you in Christ Jesus.\u201d ~ 1 Corinthians 1:4 (NIV)", "Look for\u2026"]},
+      {h:"Conclusion",items:[]},
+    ]
+  },
+  16: {
+    title: "Lecture 16: Skill 5 \u2013 Consider Your Questions",
+    sections: [
+      {h:"Introduction",items:[]},
+      {h:"Recurring questions",items:["Questions demand a certain amount of consideration."]},
+      {h:"Sometimes questions should be avoided",items:["What skilled interviewers are looking for is a conversation."]},
+      {h:"Sometimes questions can be unhelpful",items:["Roles we inhabit"]},
+      {h:"Sometimes questions are important",items:["When you are confused or something doesn\u2019t make sense to you", "A way to redirect a conversation"]},
+      {h:"Consider alternatives to questions",items:["Key Idea:"]},
+    ]
+  },
+  17: {
+    title: "Lecture 17: Skill 6 \u2013 Know the Experience, Part 1",
+    sections: [
+      {h:"Know the concrete experience behind technical words",items:["Theology has its own technical words.", "Psychiatry and mental health have technical language."]},
+      {h:"Two problems with psychiatric labels",items:["Psychiatric diagnoses are \u201cmore\u201d or \u201cless\u201d", "Key Idea:", "General Rule:", "Key Idea:"]},
+      {h:"Our strategy",items:["Put technical language into everyday language.", "Illustration: Schizophrenia", "Key Idea:", "Illustration: Autism", "\u201cWe want to see the normal in the abnormal.\u201d", "Scripture is suddenly accessible."]},
+      {h:"We are embodied souls",items:["Many psychiatric diagnoses have features embedded in brain functioning.", "You know something about the human heart, but you also know something about us body and soul.", "\u201cWatch and pray that you may not enter into temptation. The spirit indeed is willing, but the flesh is weak.\u201d ~ Matthew 26:41 (ESV)", "2 Corinthians 4:16 -", "Examples", "When there is technical language, we want to break that down into descriptions. Some of those are going to be ordinary features of humanity that map onto Scripture. Some will be particulars of the ways the brain works."]},
+    ]
+  },
+  18: {
+    title: "Lecture 18: Skill 6 \u2013 Know the Experience, Part 2",
+    sections: [
+      {h:"Introduction/Review",items:[]},
+      {h:"Applications",items:["What do they mean by psychological problems?", "How Scripture moves into the word \u201cemotion\u201d.", "If someone says they have a psychological problem, it is the beginning of knowing them, not the end.", "Example: \u201cLow self-esteem\u201d"]},
+      {h:"Psychiatric diagnoses",items:["Dissociative Identity Disorder", "We don\u2019t have to understand something fully to be able to care for someone.", "Key Idea:", "Questions that come up", "Depression", "Scripture takes control of these things", "\u201cHelp me to understand what it is like for you.\u201d", "Borderline Personality Disorder", "Emptiness", "Swirl of everything all at once", "Trauma", "Trauma is how death has come close to you."]},
+      {h:"Conclusion",items:["Goal: We want to know the person well, and psychiatric words can be a hindrance at times, but they can also be a real benefit because they identify things that are especially difficult for that particular person."]},
+    ]
+  },
+  19: {
+    title: "Lecture 19: Skill 7 \u2013 Connect to Daily Life",
+    sections: [
+      {h:"Connect daily life to God",items:["How can we see the spiritual depths of daily life?"]},
+      {h:"Scripture",items:["It begins in the Garden", "\u201c\u2026When a man or woman commits any of the sins that people commit by breaking faith with the Lord\u2026\u201d ~ Numbers 5:6b (ESV)", "Numbers 14:11b -", "\u201c\u2026as you did it to one of the least of these my brothers, you did it to me.\u201d            ~ Matthew 25:40b (ESV)", "Key Idea:", "James 4 -", "\u201cIf anyone says, \u2018I love God,\u2019 yet hates his brother, he is a liar; for he who does not love his brother whom he has seen cannot love God whom he has not seen.\u201d  ~ 1 John 4:20 (ESV)", "Key Idea:"]},
+      {h:"Illustrations",items:["Woman with fibromyalgia", "Dr. Welch and the internet", "Old grievance", "Conflict in church"]},
+      {h:"Conclusion",items:["How do the details of your daily life \u2013 especially the things that are difficult in life \u2013 reveal your heart toward the Lord?"]},
+    ]
+  },
+  20: {
+    title: "Lecture 20: Skill 8 \u2013 Simplify Details",
+    sections: [
+      {h:"Introduction",items:["Simplify and arrange details into pictures and stories."]},
+      {h:"How do you simplify?",items:["How do you take a representative story and use it?", "Sometimes a person simply talking to you about a problem will be helpful."]},
+      {h:"What is a story?",items:["This is the way we grow with Scripture."]},
+      {h:"Practice",items:["Try with Scripture", "How to organize"]},
+      {h:"Conclusion",items:[]},
+    ]
+  },
+  21: {
+    title: "Lecture 21: Skill 9 \u2013 Distinguish Content & Process",
+    sections: [
+      {h:"Distinguish content and process",items:["Are you walking together with the other person in the same direction?"]},
+      {h:"Definitions",items:["Content: the words spoken or the topic being discussed", "Process: the relationship between those who are speaking; the tone; the way the words are wrapped", "Things to be looking for", "You", "Other person", "Illustrations", "A family meal", "Classroom", "Relationships", "Preaching", "Scripture", "\u201cMake room for us in your hearts. We have wronged no one, we have corrupted no one, we have exploited no one. I do not say this to condemn you; I have said before that you have such a place in our hearts that we would live or die with you.\u201d ~ 2 Corinthians 7:2-3 (NIV)", "Counseling"]},
+      {h:"Conclusion",items:[]},
+    ]
+  },
+  22: {
+    title: "Lecture 22: Skill 10 - Pause",
+    sections: [
+      {h:"Pause when you don\u2019t understand",items:[]},
+      {h:"What will you do when you get lost?",items:["When in doubt, follow the person."]},
+      {h:"How do you find your way?",items:["Talk about it", "\u201cI don\u2019t know\u201d is an important theological category.", "Let\u2019s pray", "Get out the map", "Pray for next steps", "Let\u2019s take time to confess our sins."]},
+    ]
+  },
+  23: {
+    title: "Lecture 23: Skill 1 \u2013 Accumulate Wisdom",
+    sections: [
+      {h:"Introduction",items:["God speaks in Scripture to all things.", "\u201cThere is not a square inch in the whole domain of our human existence over which Christ, who is Sovereign over all, does not cry, \u2018Mine!\u2019\u201d \u2013 Abraham Kuyper[^6]", "Example", "\u201cAll the prosperous of the earth eat and worship;", "before him shall bow all who go down to the dust,", "even the one who could not keep himself alive.", "Posterity shall serve him;", "it shall be told of the Lord to the coming generation;", "they shall come and proclaim his righteousness to a people yet unborn,", "that he has done it.\u201d", "~ Psalm 22:29-31 (ESV)"]},
+      {h:"Accumulate wisdom in knowing & giving Scripture",items:["How has Scripture been offered to you in meaningful ways?", "When I see the person has been affected by it", "When I am prepared to listen", "When I ask friends"]},
+      {h:"What you don\u2019t say",items:["Stop it.", "\u201cJust\u2026\u201d"]},
+      {h:"What do you say",items:["Grow in your own humble listening to Scripture", "Speak about God more. Know the God who speaks.", "Example"]},
+    ]
+  },
+  24: {
+    title: "Lecture 24: Skill 2 \u2013 Be Personal",
+    sections: [
+      {h:"Be personal with the personal God.",items:[]},
+      {h:"Scripture are his words",items:["\u201cAnd he humbled you and let you hunger and fed you with manna, which you did not know nor did your fathers know, that he might make you know that man does not live by bread alone\u2026\u201d ~ Deuteronomy 8:3a (ESV)", "Scripture as a sub-heading of the Spirit.", "\u201cThe Holy Spirit speaking in the Scripture\u201d is our authority \u2013 WCF 1.10", "\u201cChrist meets and refreshes me everywhere in those books.\u201d - Augustine", "Illustration from counseling", "A few questions", "What has landed on your heart? What are you learning?", "\u201cAnd when the Gentiles heard this, they began rejoicing and glorifying the word of the Lord, and as many as were appointed to eternal life believed.\u201d", "~ Acts 13:48 (ESV)", "Does scripture get personal?", "John 1:21 - Do you love me?", "Do you talk to Him? Do you speak from your own heart to Him?", "Other images", "We live on the words that come from the mouth of God.", "\u201cO Lord thou didst strike my heart with thy word and I loved thee.\u201d", "Augustine", "How would you have encouraged our hearts?"]},
+      {h:"The words he speaks are good words",items:["\u201cHer ways are ways of pleasantness,", "and all her paths are peace.", "She is a tree of life to those who lay hold of her;", "those who hold her fast are called blessed.\u201d", "~ Proverbs 3:17-18 (ESV)", "\u201cHow beautiful upon the mountains", "are the feet of him who brings good news", "who publishes peace, who brings good news of happiness,", "who publishes salvation,", "who says to Zion, \u2018Your God reigns.\u2019\u201d", "~ Isaiah 52:7", "\u201cCome, everyone who thirsts,", "come to the waters;", "and he who has no money,", "come, buy and eat!", "Come, buy wine and milk", "without money and without price.", "Why do you spend your money for that which is not bread,", "and your labor for that which does not satisfy?", "Listen diligently to me, and eat what is good,", "and delight yourselves in rich food.\u201d", "~Isaiah 55:1-2", "1 John 5:3 -"]},
+      {h:"Conclusion",items:["Key idea:"]},
+    ]
+  },
+  25: {
+    title: "Lecture 25: Skill 3 \u2013 Everyday Language",
+    sections: [
+      {h:"Know everyday language for theological terms",items:["\u201cDon\u2019t believe anything that can\u2019t be told in coloured pictures.\u201d \u2013 G.K. Chesterton[^7]", "Key Idea:"]},
+      {h:"Words & images",items:["Saved", "Converted", "Distance", "United with Christ", "\u201cThe LORD is your keeper;", "the LORD is your shade on your right hand.\u201d", "~ Psalm 121:5 (ESV)", "Isaiah 41:13A -", "What is the Gospel?", "Holiness", "\u201cWho is like you, O LORD, among the gods?", "Who is like you, majestic in holiness,", "awesome in glorious deeds, doing wonders?", "You stretched out your right hand;", "the earth swallowed them.\u201d", "~ Exodus 15:11-12 (ESV)", "\u201cAnd immediately all the crowd, when they saw him, were greatly amazed and ran up to him and greeted him.\u201d ~ Mark 9:15 (ESV)", "Holiness in us", "Sanctification", "Forgiveness", "1 Peter 3:18 -"]},
+      {h:"Difference between abstract & concrete",items:["Concrete: Available to our senses", "Abstract: Available to our minds", "Example of blame"]},
+      {h:"Conclusion",items:[]},
+    ]
+  },
+  26: {
+    title: "Lecture 26: Skill 4 \u2013 Keep in Step with the Spirit, Part 1",
+    sections: [
+      {h:"Keep in step with the Spirit",items:[]},
+      {h:"Scripture",items:["\u201cIf we live by the Spirit, let us also keep in step with the Spirit.\u201d ~ Galatians 5:25 (ESV)", "\u201cBut I say, walk by the Spirit, and you will not gratify the desires of the flesh.\u201d    ~ Galatians 5:16 (ESV)", "\u201cBut if you are led by the Spirit, you are not under the law.\u201d ~ Galatians 5:18 (ESV)"]},
+      {h:"He unites us with Jesus & gives us fellowship.",items:["\u201cAnd they went through the region of Phrygia and Galatia, having been forbidden by the Holy Spirit to speak the word in Asia. And when they had come up to Mysia, they attempted to go into Bithynia, but the Spirit of Jesus did not allow them\u201d ~ Acts 16:6-7 (ESV)", "God has always determined that his people would be close to him.", "This is a Trinitarian movement of God.", "\u201c\u2026 that the God of our Lord Jesus Christ, the Father of glory, may give you the Spirit of wisdom and of revelation in the knowledge of him\u2026\u201d ~ Ephesians 1:17 (ESV)", "\u201c\u2026he may grant you to be strengthened with power through his Spirit in your inner being, so that Christ may dwell in your hearts through faith \u2013 that you being rooted and grounded in love, may have strength to comprehend with all the saints what is the breadth and length and height and depth, and to know the love of Christ that surpasses knowledge, that you may be filled with all the fullness of God.\u201d ~ Ephesians 3:16-19b (ESV)", "Application", "The Spirit assures fearful people that Christ is present."]},
+      {h:"He transforms us into the image of Christ.",items:["The Spirit is power.", "\u201cMay the God of hope fill you with all joy and peace in believing, so that by the power of the Holy Spirit you may abound in hope.\u201d ~ Romans 15:13 (ESV)", "\u201cAnd we all, with unveiled face, beholding the glory of the Lord, are being transformed into the same image from one degree of glory to another. For this comes from the Lord who is the Spirit.\u201d ~ 2 Corinthians 3:18 (ESV)", "\u201cAnd such were some of you. But you were washed, you were sanctified, you were justified in the name of the Lord Jesus Christ and by the Spirit of our God.\u201d ~ 1 Corinthians 6:11 (ESV)"]},
+      {h:"Sanctification",items:["Spiritual gifts"]},
+      {h:"How can you color this transformation?",items:["Holiness, sanctification, transformation into the person of Christ by the Spirit is going to look like a battle.", "\u201cFor we do not wrestle against flesh and blood, but against the rulers, against the authorities, against the cosmic powers over this present darkness, against the spiritual forces of evil in the heavenly places.\u201d ~ Ephesians 6:12 (ESV)", "The truth is the devil has an accomplice in his work against us, and it is our very flesh.", "The Spirit ignites repentance and obedience.", "\u201cLord, make me as holy as it is possible for a saved sinner to be.\u201d \u2013 Robert Murray McCheyne"]},
+      {h:"How does this shape your method?",items:["And you?", "In care for other people", "What are Satan\u2019s devices in my/your life?", "Incentive: Titus 2:10", "Final Illustration"]},
+    ]
+  },
+  27: {
+    title: "Lecture 27: Skill 4 \u2013 Keep in Step with the Spirit, Part 2",
+    sections: [
+      {h:"Review",items:[]},
+      {h:"He gives us confidence our union is certain.",items:["Why is this important? (2:53)", "Questions for you (4:27)", "Are you confident that God loves you?", "Are you a bit concerned about seeing Jesus face to face?", "The truth:", "The point is the Spirit\u2019s work of bringing confidence to you and those you care for has a significant history.", "\u201cFor there are three that testify: the Spirit and the water and the blood; and these three agree.\u201d ~ 1 John 5:7-8 (ESV)", "Key Idea:", "First Argument: Consider the character of God.", "\u201cAnd because you are sons, God has sent the Spirit of his Son into our hearts, crying \u2018Abba! Father!\u2019\u201d ~ Galatians 4:6 (ESV)", "Second Argument: Look at yourself", "Are you turned in the right direction?", "Let\u2019s enter in more deeply to the work of the Spirit.", "An active, alive conscience reminds you that you are a sinner today.", "Now, draw near", "\u201cLet us then with confidence draw near to the throne of grace, that we may receive mercy and find grace to help in time of need.\u201d ~ Hebrews 4:6 (ESV)", "Fight to draw near", "\u201cWhat father among you, if his son asks for a fish, will instead of a fish give him a serpent; or if he asks for an egg, will give him a scorpion? If you then, who are evil, know how to give good gifts to your children, how much more will the heavenly Father give the Holy Spirit to those who ask him!\u201d ~ Luke 11:11-13 (ESV)"]},
+      {h:"Your care for others",items:["Key Idea:"]},
+    ]
+  },
+  28: {
+    title: "Lecture 28: Skill 5 \u2013 Access Scripture Together",
+    sections: [
+      {h:"Access Scripture together",items:[]},
+      {h:"Three reasons for this skill",items:["We would like to make more connections between a person\u2019s struggle and scripture.", "We live in an era in which scripture is often relegated to a tiny spiritual sector of our being.", "We usually don\u2019t get out our Bibles with our friends.", "How do you access scripture? What is your own strategy in accessing scripture?"]},
+      {h:"Ways to access Scripture",items:["\u201cLet\u2019s pray\u201d", "When you\u2019re stumped:", "Ask your friends if there is anything important to them from Scripture recently.", "Do you have a life verse?", "Ask those you are helping if any particular Scripture has been helpful to for them.", "The better you know someone, the more their struggles become recognizable and find openings in Scripture.", "Read a New Testament book together", "Work together", "\u201cFor I decided to know nothing among you except Jesus Christ and him crucified.\u201d ~ 1 Corinthians 2:2 (ESV)", "Did you love?", "\u201cThe LORD, the LORD, a God merciful and gracious, slow to anger, and abounding in steadfast love and faithfulness, keeping steadfast love for thousands, forgiving iniquity and transgression and sin, but who will by no means clear the guilty, visiting the iniquity of the fathers on the children and the children\u2019s children, to the third and fourth generation.\u201d ~ Exodus 34:6b-7 (ESV)", "Review the classic summaries", "\u201cSince then we have a great high priest who has passed through the heavens, Jesus, the Son of God, let us hold fast our confession.\u201d ~ Hebrews 4:14 (ESV)", "WSC Question 1: What is man\u2019s chief end?", "Answer: Man\u2019s chief end is to glorify God and to enjoy him forever.", "Heidelberg Catechism Question 1: What is your only comfort in life and in death?", "Answer: That I am not my own, but belong with body and soul, both in life and in death, to my faithful Savior, Jesus Christ. He has fully paid for all my sins with his precious blood, and has set me free from all the power of the devil\u2026", "Heidelberg Catechism Question 2: What do you need to know in order live and die in the joy of this comfort?", "Answer: First, how great my sins and misery are; second, how I am delivered from all my sins and misery; third, how I am to be thankful to God for such deliverance.", "Small step: tell someone about this part of the class; ask them."]},
+    ]
+  },
+  29: {
+    title: "Lecture 29: Skill 6 \u2013 Distinguish Scripture & Advice",
+    sections: [
+      {h:"Distinguish between Scripture and advice",items:[]},
+      {h:"Advice",items:["When was advice helpful to you, and when was it not quite what you were looking for?", "What is it?", "Key idea:", "The problems", "General rules about giving advice"]},
+      {h:"Scripture",items:["\u201cNow concerning the matters about which you wrote: \u2018It is good for a man not to have sexual relations with a woman.\u2019 But because of the temptation to sexual immorality, each man should have his own wife and each woman her own husband. The husband should give to his wife her conjugal rights, and likewise the wife to her husband...Now as a concession, not a command, I say this. I wish that all were as I myself am. But each has his own gift from God, one of one kind and one of another.\u201d ~ 1 Corinthians 7:1-3, 6-7 (ESV)", "\u201cNow to the unmarried and widows I say: It is good for them to stay unmarried, as I do. But if they cannot control themselves, they should marry, for it is better to marry than to burn with passion. To the married I give this command (not I, but the Lord): A wife must not separate from her husband. But if she does, she must remain unmarried or else be reconciled to her husband. And a husband must not divorce his wife.\u201d ~ 1 Corinthians 7:8-11 (NIV)", "\u201cTo the rest I say this (I, not the Lord): If any brother has a wife who is not a believer and she is willing to live with him, he must not divorce her.\u201d                               ~ 1 Corinthians 7:12 (NIV)", "\u201cNow about virgins: I have no command from the Lord, but I give a judgment as one who by the Lord\u2019s mercy is trustworthy. Because of the present crisis, I think that it is good for a man to remain as he is.\u201d ~ 1 Corinthians 7:25-26 (NIV)", "Key Idea:"]},
+    ]
+  },
+  30: {
+    title: "Lecture 30: Skill 7 \u2013 Skills with Sinners, Part 1",
+    sections: [
+      {h:"Grow in skills with sinners",items:["\u201cMy brothers, if anyone among you wanders from the truth and someone brings him back, let him know that whoever brings back a sinner from his wandering will save his soul from death and will cover a multitude of sins.\u201d ~ James 5:19-20 (ESV)", "It is an under-used skill."]},
+      {h:"How does Scripture speak to sinners?",items:["How does love go on a wise rescue mission?", "First Example: Isaiah", "\u201cCome now, let us reason together, says the LORD:", "though your sins are like scarlet,", "they shall be as white as snow;", "though they are read like crimson,", "they shall become like wool.", "If you are willing and obedient,", "you shall eat the good of the land;", "but if you refuse and rebel,", "you shall be eaten by the sword;", "for the mouth of the LORD has spoken.\u201d", "~ Isaiah 1:18-20", "Second Example: Galatians", "Key Idea:", "How does the Spirit speak to you in your own sin? How have other people spoken to you about your own sin?", "What have you learned already about how to speak about sin by way of how the Spirit has spoken to you and how other people have spoken to you?", "Guidelines", "Approach with humility", "Move with gentleness and patience", "Galatians 6:1-", "Bear the burden of sin with the person", "Does it sound good?", "Do you bring compassion when things are hard?", "\u201cHow should we pray?\u201d"]},
+      {h:"The story of sin",items:["We were given everything", "Blaming and accusing", "Unbounded desire & pride", "The wilderness", "Nature of idolatry", "Kings", "New Testament", "Key Idea:", "Sin is our deepest problem"]},
+    ]
+  },
+  31: {
+    title: "Lecture 31: Skill 7 \u2013 Skills with Sinners, Part 2",
+    sections: [
+      {h:"Review",items:["Develop skill in saying hard things"]},
+      {h:"Definitions",items:["Direct speech", "Indirect speech"]},
+      {h:"Indirect Speech",items:["Jesus in Mark", "\u201cWhy are you thinking these things?\u201d ~ Mark 2:8b (NIV)", "\u201cWhich is easier, to say to the paralytic, \u2018Your sins are forgiven,\u2019 or to say, \u2018Rise, take up your bed and walk?\u2019\u201d ~ Mark 2:9 (ESV)", "Mark 2:19a -", "\u201cHave you never read what David did when he and his companions were hungry and in need?\u201d ~ Mark 2:25b (NIV)", "Mark 3:4 -", "Mark 3:23 -", "\u201cAnd they came to Capernaum. And when he was in the house he asked them, \u2018What were you discussing on the way?\u2019 But they kept silent, for on the way they had argued with one another about who was the greatest. And he sat down and called the twelve. And he said to them, \u2018If anyone would be first, he must be last of all and a servant of all.\u2019 And he took a child and put him in the midst of them, and taking him in his arms, he said to them, \u2018Whoever receives one such child in my name receives me, and whoever receives me, receives not me but him who sent me.\u2019\u201d ~Mark 9:33-37 (ESV)", "Alongside somebody", "Looking for good words that are relevant to all of us.", "When we feel stuck", "We are not our own", "Ask questions that are not merely rhetorical", "Get more of the story", "Embellish what you see as good in them", "Tell stories", "Laughter, irony, humor", "State the opposite of where they are headed", "\u201cHow can I help?\u201d", "\u201cLet\u2019s talk about God.\u201d", "\u201cLet\u2019s pray.\u201d"]},
+      {h:"Direct",items:["Done well, direct speech is rarely expressed in anger.", "Basic Rules", "Be personal", "Be surprising", "Examples of direct speech", "Prepare them beforehand", "Ask them for help", "Tell the truth, which they already know.", "Miscellaneous commands", "Talk about God", "\u201cLet\u2019s pray\u201d"]},
+      {h:"Conclusion",items:[]},
+    ]
+  },
+  32: {
+    title: "Lecture 32: Skill 8 \u2013 Skills with Sufferers",
+    sections: [
+      {h:"Grow in skills with sufferers",items:[]},
+      {h:"The story of suffering",items:["Key Idea:", "Suffering is a necessary accompaniment to the presence of sin.", "We live in an intensely personal world.", "\u201cTrust in him at all times, O people; pour out your heart before him\u2026\u201d                  ~ Psalm 62:8 (ESV)", "The wilderness", "Both death and God\u2019s presence beckon the enemy.", "Leviticus: sin has tragic consequences", "Isaiah prophecies", "The book of John", "The Lamb of God begins to identify his people.", "As the king goes, so go the people.", "We pray for the comfort of the Spirit.", "We find friends who can talk about these things."]},
+      {h:"Caring for the sufferers",items:["What are you learning?", "Love and humility are our guide.", "Compassions knows and is affected by the sufferer.", "Humility suggests you are not going to be the one who is able to fix the troubles of death, and Satan, and sin.", "What do we not say?", "Anything that lacks humility and lacks compassion", "Caution:"]},
+      {h:"What we shouldn\u2019t do",items:["We teach or advise", "True-ish Scripture", "\u201cAnd we know that for those who love God all things work together for good, for those who are called according to his purpose. For those whom he foreknew he also predestined to be conformed to the image of his Son\u2026\u201d ~ Romans 8:28-29a (ESV)", "Untrue Scripture", "\u201c\u2026give thanks in all circumstances; for this is the will of God in Christ Jesus for you.\u201d ~ 1 Thessalonians 5:18 (ESV)", "We tend to minimize"]},
+      {h:"What do we say",items:["What draws people together", "Our goal is for our care for people to be refined today."]},
+    ]
+  },
+  33: {
+    title: "Lecture 33: Skill 9 \u2013 Retell Stories",
+    sections: [
+      {h:"Retell the person\u2019s story",items:["Examples of retelling", "Key idea:", "Repentance is the retelling of a story.", "Psalm 73 -", "Simplifying"]},
+      {h:"God speaks and the story gets retold",items:["Illustrations", "Paul", "\u201cIf someone else thinks they have reasons to put confidence in the flesh, I have more: circumcised on the eighth day, of the people of Israel, of the tribe of Benjamin, a Hebrew of Hebrews; in regard to the law, a Pharisee; as for zeal, persecuting the church; as for righteousness based on the law, faultless\u2026and count them as rubbish, in order that I may gain Christ and be found in him, not having a righteousness of my own that comes from the law, but that which comes through faith in Christ\u2026 I want to know Christ \u2013 yes, to know the power of his resurrection and participation in his sufferings, becoming like him in his death, and so, somehow, attaining to the resurrection from the dead.\u201d ~ Philippians 3:4b-11 (NIV/ESV)", "Key Idea:", "My story", "Short retelling or long retelling", "\u201cI have been crucified with Christ. It is no longer I who live, but Christ who lives in me. And the life I now live in the flesh I live by faith in the Son of God, who loved me and gave himself for me.\u201d ~ Galatians 2:20 (ESV)", "Addictions", "PTSD", "Psalm 10 (NIV/ESV)", "*What\u2019s on your heart?*", "\u201cWhy, Lord, do you stand far off?", "Why do you hide yourself in times of trouble?\u201d (v. 1)", "*The **d**etails*", "\u201cIn his arrogance the wicked man hunts down the weak,", "who are caught in the schemes he devises.", "He boasts about the cravings of his heart;", "he blesses the greedy and reviles the Lord.", "In his pride the wicked man does not seek him;", "in all his thoughts there is no room for God.", "His ways are always prosperous;\u201d (v. 2-5a)", "\u201clike a lion in cover he lies in wait\u2026", "he catches the helpless and drags them off in his net.", "His victims are crushed, they collapse;", "they fall under his strength.\u201d (v. 9-10)", "*Now you cry for help.*", "\u201cArise, Lord! Lift up your hand, O God.", "Do not forget the helpless.", "Break the arm of the wicked man;", "call the evildoer to account for his wickedness\u2026\u201d (v. 12, 15a)", "*A brief confession of Truth*", "\u201cThe Lord is King for ever and ever;", "the nations will perish from his land.", "O LORD, you hear the desire of the afflicted;", "you encourage them, and you listen to their cry,", "defending the fatherless and the oppressed,", "so that man who is of the earth may strike terror no more.\u201d (v. 16-18)"]},
+      {h:"Responses",items:[]},
+    ]
+  },
+  34: {
+    title: "Lecture 34: Closing",
+    sections: [
+      {h:"Goal: to grow in wise conversations",items:["\u201cI said to this fellow when I went into his office, \u2018How are you?\u2019 knowing, of course, how he was. And there was what seemed to me an unbearable moment, a series of moments, when he didn\u2019t answer. And I thought to myself, \u2018My God! He\u2019s going to tell me!\u2019\u201d \u2013 Frederick Buechner"]},
+      {h:"Connect ministry methods to their theological foundations",items:[]},
+      {h:"Establish a simple platform for all ministry that has unlimited potential",items:[]},
+      {h:"To bring this model and skills into your church in a way that refines church culture",items:["Appendix: Skills Lists", "\u00a9 June 2025 CCEF\tThe School of Biblical Counseling", "[^1]: The scripture passage Dr. Welch quotes from after making this statement is I Corinthians 1:27-29 (ESV).", "[^2]: Geerhardus Vos, \u201cHebrews, the Epistle of the Diatheke,\u201d in\u00a0Redemptive History and Biblical Interpretation, 186", "[^3]: Geerhardus Vos, \u201cHebrews, the Epistle of the Diatheke,\u201d in\u00a0Redemptive History and Biblical Interpretation, 186. Cited in William Edgar, Without Apology: Why I Am a Presuppositionalist, Westminster Theological Journal, vol. 58, Spring 1996, 20.", "[^4]: Packer, J I. \"Ministry of the Word.\" Westminster Magazine Volume 2, Issue 2, May 15, 2022.", "[^5]: Augustine, Saint, and Maria Boulding.\u00a0The Confessions. New York: Vintage Books, 1998.", "[^6]: Abraham Kuyper, \u201cSphere Sovereignty,\u201d in Abraham Kuyper: A Centennial Reader, ed. James D. Bratt (Grand Rapids, MI: Eerdmans, 1998), 488.", "[^7]: Cited by J.I. Packer in Keep in Step with the Spirit, 2005, 141."]},
+    ]
+  },
+};
+// ── Course data ────────────────────────────────────────────
 const DATA=[
 {id:1,title:"Week 1",dates:"June 22–27",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 1: Introduction",t:18},
-    {n:"Lecture 2: Key Passage",t:9},
-    {n:"Lecture 3: Hindrances",t:13},
-    {n:"Lecture 4: Life in God's House, Part 1",t:21},
-    {n:"Lecture 5: Life in God's House, Part 2",t:40},
-    {n:"Lecture 6: Life in God's House, Part 3",t:24},
+    {n:"Lecture 1: Introduction",t:18,lec:1},
+    {n:"Lecture 2: Key Passage",t:9,lec:2},
+    {n:"Lecture 3: Hindrances",t:13,lec:3},
+    {n:"Lecture 4: Life in God's House, Part 1",t:21,lec:4},
+    {n:"Lecture 5: Life in God's House, Part 2",t:40,lec:5},
+    {n:"Lecture 6: Life in God's House, Part 3",t:24,lec:6},
   ]},
   {label:"Read",type:"read",tasks:[
     {n:"Welch, Side by Side, Intro–ch. 3",t:60},
@@ -158,10 +499,10 @@ const DATA=[
 ]},
 {id:2,title:"Week 2",dates:"June 29–July 4",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 7: Pursue & Know People",t:41},
-    {n:"Lecture 8: Know the Heart, Part 1",t:40},
-    {n:"Lecture 9: Know the Heart, Part 2",t:21},
-    {n:"Lecture 10: Know God & His Ways",t:16},
+    {n:"Lecture 7: Pursue & Know People",t:41,lec:7},
+    {n:"Lecture 8: Know the Heart, Part 1",t:40,lec:8},
+    {n:"Lecture 9: Know the Heart, Part 2",t:21,lec:9},
+    {n:"Lecture 10: Know God & His Ways",t:16,lec:10},
   ]},
   {label:"Read",type:"read",tasks:[
     {n:"Welch, Side by Side, chs. 4–6",t:45},
@@ -180,11 +521,11 @@ const DATA=[
 ]},
 {id:3,title:"Week 3",dates:"July 6–11",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 11: Skill 1–Accumulate Wisdom",t:14},
-    {n:"Lecture 12: Skill 2–Move Conversations",t:21},
-    {n:"Lecture 13: Skill 3–Self-Disclosure",t:24},
-    {n:"Lecture 14: Skill 4–Follow the Person, Part 1",t:45},
-    {n:"Lecture 15: Skill 4–Follow the Person, Part 2",t:20},
+    {n:"Lecture 11: Skill 1–Accumulate Wisdom",t:14,lec:11},
+    {n:"Lecture 12: Skill 2–Move Conversations",t:21,lec:12},
+    {n:"Lecture 13: Skill 3–Self-Disclosure",t:24,lec:13},
+    {n:"Lecture 14: Skill 4–Follow the Person, Part 1",t:45,lec:14},
+    {n:"Lecture 15: Skill 4–Follow the Person, Part 2",t:20,lec:15},
   ]},
   {label:"Read",type:"read",tasks:[
     {n:"Welch, Side by Side, chs. 7–9",t:45},
@@ -199,9 +540,9 @@ const DATA=[
 ]},
 {id:4,title:"Week 4",dates:"July 13–18",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 16: Skill 5–Consider Your Questions",t:28},
-    {n:"Lecture 17: Skill 6–Know the Experience, Part 1",t:37},
-    {n:"Lecture 18: Skill 6–Know the Experience, Part 2",t:37},
+    {n:"Lecture 16: Skill 5–Consider Your Questions",t:28,lec:16},
+    {n:"Lecture 17: Skill 6–Know the Experience, Part 1",t:37,lec:17},
+    {n:"Lecture 18: Skill 6–Know the Experience, Part 2",t:37,lec:18},
     {n:"Role Play 1",t:33},
   ]},
   {label:"Read",type:"read",tasks:[
@@ -220,25 +561,30 @@ const DATA=[
 ]},
 {id:5,title:"Week 5",dates:"July 20–25",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 19 (est.)",t:30},{n:"Lecture 20 (est.)",t:30},
-    {n:"Lecture 21 (est.)",t:30},{n:"Lecture 22 (est.)",t:30},
+    {n:"Lecture 19: Skill 7–Connect to Daily Life",t:24,lec:19},
+    {n:"Lecture 20: Skill 8–Simplify Details",t:36,lec:20},
+    {n:"Lecture 21: Skill 9–Distinguish Content & Process",t:33,lec:21},
+    {n:"Lecture 22: Skill 10–Pause",t:24,lec:22},
   ]},
   {label:"Read",type:"read",tasks:[
     {n:"Welch, Side by Side, chs. 13–15",t:45},
     {n:"Yalom, The Gift of Therapy, chs. 31–40",t:60},
+    {n:"Miller, The Heart of a Servant Leader (assigned sections)",t:45},
   ]},
   {label:"Assignments",type:"complete",tasks:[
     {n:"Yalom Reading Reflections, Week 5",t:30},
     {n:"Extended Conversation, Week 5 Prompt",t:30},
     {n:"Reflection Paper 2",t:90,pts:100},
   ]},
-  {label:"Attend",type:"attend",tasks:[{n:"Live Engagement 2 with OI",t:60}]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Live Engagement 2 with OI",t:60},
+  ]},
 ]},
 {id:6,title:"Week 6",dates:"July 27–Aug 1",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 23: Skill 1–Accumulate Wisdom",t:28},
-    {n:"Lecture 24: Skill 2–Be Personal",t:30},
-    {n:"Lecture 25: Skill 3–Everyday Language",t:29},
+    {n:"Lecture 23: Skill 1–Accumulate Wisdom",t:28,lec:23},
+    {n:"Lecture 24: Skill 2–Be Personal",t:30,lec:24},
+    {n:"Lecture 25: Skill 3–Everyday Language",t:29,lec:25},
     {n:"How to Have Better Conversations | Jordan Peterson",t:6},
     {n:"How to Have a Good Conversation | Celeste Headlee",t:12},
   ]},
@@ -251,13 +597,15 @@ const DATA=[
     {n:"Extended Conversation, Week 6 Prompt",t:30,due:"Aug 1"},
     {n:"Small Group 3 (Prompts & Questions)",t:20,due:"Aug 1"},
   ]},
-  {label:"Attend",type:"attend",tasks:[{n:"Small Group 3 Attendance",t:60,due:"Aug 1",pts:100}]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Small Group 3 Attendance",t:60,due:"Aug 1",pts:100},
+  ]},
 ]},
 {id:7,title:"Week 7",dates:"Aug 3–8",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 26: Skill 4–Keep in Step with the Spirit, Part 1",t:46},
-    {n:"Lecture 27: Skill 4–Keep in Step with the Spirit, Part 2",t:33},
-    {n:"Lecture 28: Skill 5–Access Scripture Together",t:32},
+    {n:"Lecture 26: Skill 4–Keep in Step with the Spirit, Part 1",t:46,lec:26},
+    {n:"Lecture 27: Skill 4–Keep in Step with the Spirit, Part 2",t:33,lec:27},
+    {n:"Lecture 28: Skill 5–Access Scripture Together",t:32,lec:28},
     {n:"Role Play 2",t:19},
   ]},
   {label:"Read",type:"read",tasks:[
@@ -273,9 +621,9 @@ const DATA=[
 ]},
 {id:8,title:"Week 8",dates:"Aug 10–15",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 29: Skill 6–Distinguish Scripture & Advice",t:19},
-    {n:"Lecture 30: Skill 7–Skills with Sinners, Part 1",t:31},
-    {n:"Lecture 31: Skill 7–Skills with Sinners, Part 2",t:40},
+    {n:"Lecture 29: Skill 6–Distinguish Scripture & Advice",t:19,lec:29},
+    {n:"Lecture 30: Skill 7–Skills with Sinners, Part 1",t:31,lec:30},
+    {n:"Lecture 31: Skill 7–Skills with Sinners, Part 2",t:40,lec:31},
   ]},
   {label:"Read",type:"read",tasks:[
     {n:"Welch, Caring for One Another, Lesson 6–notes",t:30},
@@ -287,128 +635,112 @@ const DATA=[
     {n:"Small Group 4 (Prompts & Questions)",t:20,due:"Aug 15"},
     {n:"Submit Questions for Live Engagement 3 (optional)",t:15,due:"Aug 15"},
   ]},
-  {label:"Attend",type:"attend",tasks:[{n:"Small Group 4 Attendance",t:60,due:"Aug 15",pts:100}]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Small Group 4 Attendance",t:60,due:"Aug 15",pts:100},
+  ]},
 ]},
 {id:9,title:"Week 9",dates:"Aug 17–22",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 32: Skill 8–Skills with Sufferers",t:47},
-    {n:"Lecture 33: Skill 9–Retell Stories",t:39},
-    {n:"Lecture 34: Closing",t:14},
+    {n:"Lecture 32: Skill 8–Skills with Sufferers",t:47,lec:32},
+    {n:"Lecture 33: Skill 9–Retell Stories",t:39,lec:33},
+    {n:"Lecture 34: Closing",t:14,lec:34},
     {n:"Role Play 3",t:45},
   ]},
-  {label:"Read",type:"read",tasks:[{n:"Yalom, The Gift of Therapy, chs. 71–85",t:75}]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Yalom, The Gift of Therapy, chs. 71–85",t:75},
+  ]},
   {label:"Assignments",type:"complete",tasks:[
     {n:"Yalom Reading Reflections, Week 9",t:30,due:"Aug 22",pts:10},
     {n:"Extended Conversation, Week 9 Prompt",t:30,due:"Aug 22"},
   ]},
-  {label:"Attend",type:"attend",tasks:[{n:"Live Engagement 3 with OI",t:60,due:"Aug 20 8pm EST"}]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Live Engagement 3 with OI",t:60,due:"Aug 20 8pm EST"},
+  ]},
 ]},
 {id:10,title:"Week 10",dates:"Aug 24–29",sections:[
   {label:"Final Assignments",type:"complete",tasks:[
     {n:"Extended Conversation Partner Log",t:30,due:"Aug 29",pts:10},
     {n:"Extended Conversation Partner Final Letter",t:45,due:"Aug 29",pts:10},
     {n:"Final Paper",t:180,due:"Aug 29",pts:100},
-    {n:"Complete June 2026 Course Evaluation",t:15,due:"Aug 29"},
+    {n:"Complete Course Evaluation",t:15,due:"Aug 29"},
   ]},
 ]},
 ];
 
-// ── State ──────────────────────────────────────────────────────────────────
-let checked = {};
-let filter = 'all';
-let openWeeks = new Set([1]);
-let syncTimer = null;
+// Audio links — add Google Drive URLs here once uploaded
+// Format: AUDIO[lectureNumber] = 'https://drive.google.com/uc?export=download&id=FILE_ID';
+const AUDIO = {};
 
-// ── Local storage fallback ────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────
+let checked={}, notesData={}, filter='all', openWeeks=new Set([1]);
+let syncTimer=null, panelLecNum=null;
+
+// ── Local storage ──────────────────────────────────────────
 function localLoad(){
-  try{const d=localStorage.getItem(LOCAL_KEY);if(d){const p=JSON.parse(d);checked=p.checked||{};if(p.openWeeks)openWeeks=new Set(p.openWeeks);}}catch(e){}
+  try{
+    const d=localStorage.getItem(LOCAL_KEY);
+    if(d){const p=JSON.parse(d);checked=p.checked||{};notesData=p.notes||{};if(p.openWeeks)openWeeks=new Set(p.openWeeks);}
+  }catch(e){}
 }
 function localSave(){
-  try{localStorage.setItem(LOCAL_KEY,JSON.stringify({checked,openWeeks:[...openWeeks]}));}catch(e){}
+  try{localStorage.setItem(LOCAL_KEY,JSON.stringify({checked,notes:notesData,openWeeks:[...openWeeks]}));}catch(e){}
 }
 
-// ── Sync dot ──────────────────────────────────────────────────────────────
-function dot(state){
-  const el=document.getElementById('sync-dot');
-  el.className='sync-dot '+(state||'');
-}
+// ── Sync dot ───────────────────────────────────────────────
+function dot(s){document.getElementById('sync-dot').className='sync-dot '+(s||'');}
 
-// ── Supabase helpers ──────────────────────────────────────────────────────
+// ── Supabase ───────────────────────────────────────────────
 async function dbFetch(){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/progress?id=eq.main&select=checked`,{
     headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
   });
-  if(!r.ok)throw new Error('fetch failed');
+  if(!r.ok)throw new Error();
   const rows=await r.json();
   return rows[0]?.checked||{};
 }
-
 async function dbSave(data){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/progress?id=eq.main`,{
     method:'PATCH',
     headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
     body:JSON.stringify({checked:data,updated_at:new Date().toISOString()})
   });
-  if(!r.ok)throw new Error('save failed');
+  if(!r.ok)throw new Error();
 }
-
 async function loadFromCloud(){
-  if(!CONFIGURED){localLoad();return;}
   dot('syncing');
-  try{
-    const remote=await dbFetch();
-    checked=remote;
-    localSave();
-    dot('ok');
-  }catch(e){
-    localLoad();
-    dot('err');
-  }
+  try{checked=await dbFetch();localSave();dot('ok');}
+  catch(e){localLoad();dot('err');}
 }
-
 function scheduleSave(){
   clearTimeout(syncTimer);
-  syncTimer=setTimeout(pushToCloud,800);
+  syncTimer=setTimeout(async()=>{
+    dot('syncing');
+    try{await dbSave(checked);localSave();dot('ok');}
+    catch(e){localSave();dot('err');}
+  },800);
 }
 
-async function pushToCloud(){
-  if(!CONFIGURED){localSave();return;}
-  dot('syncing');
-  try{
-    await dbSave(checked);
-    localSave();
-    dot('ok');
-  }catch(e){
-    localSave();
-    dot('err');
-  }
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────
 function fmtTime(t){if(t<60)return t+'min';const h=Math.floor(t/60),m=t%60;return h+'h'+(m?m+'m':'');}
 function tid(wid,si,ti){return`w${wid}s${si}t${ti}`;}
 function setFilter(f,btn){filter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
 
-function toggle(id,checkEl){
+function toggle(id,el){
   checked[id]=!checked[id];
-  checkEl.classList.toggle('checked',checked[id]);
-  checkEl.classList.add('pop');
-  setTimeout(()=>checkEl.classList.remove('pop'),250);
-  const nameEl=checkEl.closest('.task').querySelector('.task-name');
-  if(nameEl)nameEl.classList.toggle('done',checked[id]);
+  el.classList.toggle('checked',checked[id]);
+  el.classList.add('pop');
+  setTimeout(()=>el.classList.remove('pop'),250);
+  el.closest('.task').querySelector('.task-name').classList.toggle('done',checked[id]);
   updateStats();
-  const wid=parseInt(id.match(/w(\d+)/)[1]);
-  updateWeekHeader(wid);
+  updateWeekHeader(parseInt(id.match(/w(\d+)/)[1]));
   scheduleSave();
 }
 
 function toggleWeek(id){
   if(openWeeks.has(id))openWeeks.delete(id);else openWeeks.add(id);
-  const body=document.getElementById('wb-'+id);
-  const chev=document.getElementById('wc-'+id);
-  if(body)body.classList.toggle('open',openWeeks.has(id));
-  if(chev)chev.classList.toggle('open',openWeeks.has(id));
-  scheduleSave();
+  document.getElementById('wb-'+id)?.classList.toggle('open',openWeeks.has(id));
+  document.getElementById('wc-'+id)?.classList.toggle('open',openWeeks.has(id));
+  localSave();
 }
 
 function updateStats(){
@@ -431,40 +763,118 @@ function updateWeekHeader(wid){
   let wt=0,wd=0;
   w.sections.forEach((s,si)=>s.tasks.forEach((_,ti)=>{wt++;if(checked[tid(wid,si,ti)])wd++;}));
   const pct=wt>0?Math.round(wd/wt*100):0;
-  const p=document.getElementById('wpct-'+wid);const c=document.getElementById('wcnt-'+wid);const f=document.getElementById('wfill-'+wid);
-  if(p)p.textContent=pct+'%';if(c)c.textContent=wd+'/'+wt+' done';if(f)f.style.width=pct+'%';
+  document.getElementById('wpct-'+wid)?.textContent && (document.getElementById('wpct-'+wid).textContent=pct+'%');
+  document.getElementById('wcnt-'+wid)?.textContent && (document.getElementById('wcnt-'+wid).textContent=wd+'/'+wt+' done');
+  const f=document.getElementById('wfill-'+wid);if(f)f.style.width=pct+'%';
 }
 
+// ── Notes Panel ────────────────────────────────────────────
+function openNotes(lecNum, taskName){
+  panelLecNum = lecNum;
+  const nb = NOTEBOOK[lecNum];
+  document.getElementById('panel-title').textContent = nb ? nb.title : taskName;
+  document.getElementById('panel-subtitle').textContent = nb ? 'Course notebook outline + your notes' : 'Your notes';
+
+  let html = '';
+
+  // Notebook outline
+  if(nb && nb.sections.length){
+    nb.sections.forEach(s=>{
+      html += `<div class="nb-section">`;
+      html += `<div class="nb-section-heading">${escHtml(s.h)}</div>`;
+      if(s.items.length===0){
+        html += `<div class="nb-placeholder">Fill in during lecture…</div>`;
+      } else {
+        s.items.forEach(item=>{
+          const isScrip = item.includes('~') || item.match(/^\d+[A-Z]/) || item.startsWith('"') || item.includes('(ESV)') || item.includes('(NIV)');
+          html += `<div class="nb-item${isScrip?' scripture':''}">${escHtml(item)}</div>`;
+        });
+      }
+      html += `</div>`;
+    });
+  }
+
+  // Personal notes textarea
+  const noteKey = 'lec-'+lecNum;
+  const savedNote = notesData[noteKey] || '';
+  html += `<div class="notes-section">
+    <div class="notes-label">
+      My notes
+      <span class="notes-saved" id="notes-saved-indicator">Saved ✓</span>
+    </div>
+    <textarea class="notes-area" id="notes-ta" placeholder="Type your notes here…" oninput="saveNote(${lecNum},this.value)">${escHtml(savedNote)}</textarea>
+  </div>`;
+
+  document.getElementById('panel-body').innerHTML = html;
+  document.getElementById('panel-overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('panel-overlay').classList.remove('open');
+  document.getElementById('panel').classList.remove('open');
+  panelLecNum = null;
+}
+
+let noteTimer = null;
+function saveNote(lecNum, val){
+  notesData['lec-'+lecNum] = val;
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(()=>{
+    localSave();
+    const ind = document.getElementById('notes-saved-indicator');
+    if(ind){ind.classList.add('show');setTimeout(()=>ind.classList.remove('show'),2000);}
+  }, 600);
+}
+
+function escHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Render ─────────────────────────────────────────────────
 function render(){
-  const container=document.getElementById('weeks');container.innerHTML='';
-  if(!CONFIGURED)document.getElementById('setup-banner').classList.remove('hidden');
-  else document.getElementById('setup-banner').classList.add('hidden');
+  const container=document.getElementById('weeks');
+  container.innerHTML='';
 
   DATA.forEach(w=>{
     let wTotal=0,wDone=0,bodyHTML='';
     w.sections.forEach((s,si)=>{
       let secHTML='',hasVisible=false;
       s.tasks.forEach((task,ti)=>{
-        const id=tid(w.id,si,ti);const isDone=!!checked[id];
+        const id=tid(w.id,si,ti);
+        const isDone=!!checked[id];
         const show=(filter==='all')||(filter===s.type)||(filter==='remaining'&&!isDone);
         wTotal++;if(isDone)wDone++;
         if(!show)return;
         hasVisible=true;
+
         const pills=[
           `<span class="pill pill-time">${fmtTime(task.t)}</span>`,
-          task.due?`<span class="pill pill-due">Due ${task.due}`+`</span>`:'',
+          task.due?`<span class="pill pill-due">Due ${task.due}</span>`:'',
           task.pts?`<span class="pill pill-pts">${task.pts} pts</span>`:'',
         ].filter(Boolean).join('');
-        secHTML+=`<div class="task" onclick="toggle('${id}',this.querySelector('.task-check'))">
-          <div class="task-check${isDone?' checked':''}"></div>
+
+        // Action buttons
+        let actions = '';
+        if(task.lec){
+          actions += `<button class="task-btn notes-btn" onclick="event.stopPropagation();openNotes(${task.lec},'${task.n.replace(/'/g,"\\'")}')">📓 Outline & Notes</button>`;
+        }
+        if(task.lec && AUDIO[task.lec]){
+          actions += `<button class="task-btn audio-btn" onclick="event.stopPropagation();window.open('${AUDIO[task.lec]}','_blank')">▶ Play Audio</button>`;
+        }
+
+        secHTML+=`<div class="task">
+          <div class="task-check${isDone?' checked':''}" onclick="toggle('${id}',this)"></div>
           <div class="task-body">
             <div class="task-name${isDone?' done':''}">${task.n}</div>
             <div class="task-meta">${pills}</div>
+            ${actions?`<div class="task-actions">${actions}</div>`:''}
           </div>
         </div>`;
       });
       if(hasVisible)bodyHTML+=`<div class="sec-lbl">${s.label}</div>${secHTML}`;
     });
+
     const pct=wTotal>0?Math.round(wDone/wTotal*100):0;
     const isOpen=openWeeks.has(w.id);
     const div=document.createElement('div');div.className='week';
@@ -482,7 +892,8 @@ function render(){
   updateStats();
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────
+// Boot
+localLoad();
 loadFromCloud().then(()=>render());
 </script>
 </body>
