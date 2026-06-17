@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Healing Rel.">
+<title>Healing Relationships</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1D9E75;
+  --green-light:#E1F5EE;
+  --green-dark:#0F6E56;
+  --bg:#F9F9F7;
+  --surface:#FFFFFF;
+  --border:#E5E3DC;
+  --text:#1C1C1A;
+  --muted:#6B6B67;
+  --hint:#A0A09C;
+  --radius:12px;
+  --radius-sm:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#141412;
+    --surface:#1E1E1B;
+    --border:#2E2E2A;
+    --text:#F0EFE8;
+    --muted:#9A9A96;
+    --hint:#5A5A56;
+    --green-light:#0a3326;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* Top bar */
+.topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:12px;height:56px}
+.topbar h1{font-size:17px;font-weight:600;flex:1;color:var(--text)}
+.topbar .subtitle{font-size:12px;color:var(--muted);font-weight:400;display:block}
+
+/* Stats strip */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.stat-cell{background:var(--surface);padding:10px 8px;text-align:center}
+.stat-cell .val{font-size:18px;font-weight:600;color:var(--text);display:block}
+.stat-cell .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-top:1px}
+
+/* Progress */
+.prog-wrap{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px 12px}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:10px}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.4s ease}
+
+/* Filters */
+.filters{padding:12px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--bg)}
+.filters::-webkit-scrollbar{display:none}
+.filter-btn{flex-shrink:0;font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s}
+.filter-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* Weeks */
+.weeks{padding:0 16px 32px}
+.week{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.week-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.week-hdr:active{background:var(--bg)}
+.week-icon{width:32px;height:32px;border-radius:8px;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:var(--green-dark)}
+.week-info{flex:1;min-width:0}
+.week-name{font-size:15px;font-weight:600;color:var(--text)}
+.week-dates{font-size:12px;color:var(--muted);margin-top:1px}
+.week-right{text-align:right;flex-shrink:0}
+.week-pct{font-size:14px;font-weight:600;color:var(--green)}
+.week-count{font-size:11px;color:var(--muted);margin-top:1px}
+.chev{font-size:18px;color:var(--hint);transition:transform 0.2s;margin-left:4px}
+.chev.open{transform:rotate(180deg)}
+
+.week-body{display:none}
+.week-body.open{display:block}
+
+/* Week mini progress */
+.week-prog{height:3px;background:var(--border)}
+.week-prog-fill{height:100%;background:var(--green);transition:width 0.3s}
+
+/* Section label */
+.sec-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;padding:12px 16px 4px}
+
+/* Task row */
+.task{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-top:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.1s}
+.task:active{background:var(--bg)}
+.task-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.15s}
+.task-check.checked{background:var(--green);border-color:var(--green)}
+.task-check.checked::after{content:'✓';color:#fff;font-size:13px;font-weight:700;line-height:1}
+.task-body{flex:1;min-width:0}
+.task-name{font-size:14px;color:var(--text);line-height:1.4}
+.task-name.done{color:var(--hint);text-decoration:line-through}
+.task-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.pill{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.pill-time{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.pill-due{background:#FFF8EC;color:#8B5E00;border:1px solid #FAECC5}
+.pill-pts{background:var(--green-light);color:var(--green-dark);border:1px solid #9FE1CB}
+@media(prefers-color-scheme:dark){
+  .pill-due{background:#2A1F08;color:#E8C56A;border-color:#4A3510}
+}
+
+/* Empty */
+.empty{padding:20px 16px;font-size:13px;color:var(--muted);text-align:center}
+
+/* Celebrate */
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.task-check.pop{animation:pop 0.25s ease}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="flex:1">
+    <span style="font-size:17px;font-weight:600;color:var(--text)">Healing Relationships</span>
+    <span class="subtitle">CCEF Biblical Counseling · June–August 2025</span>
+  </div>
+</div>
+
+<div class="stats-strip">
+  <div class="stat-cell"><span class="val" id="s-done">0</span><span class="lbl">Done</span></div>
+  <div class="stat-cell"><span class="val" id="s-total">0</span><span class="lbl">Total</span></div>
+  <div class="stat-cell"><span class="val" id="s-hrs">—</span><span class="lbl">Hrs left</span></div>
+  <div class="stat-cell"><span class="val" id="s-pct">0%</span><span class="lbl">Complete</span></div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+  <button class="filter-btn" onclick="setFilter('watch',this)">📺 Watch</button>
+  <button class="filter-btn" onclick="setFilter('read',this)">📖 Read</button>
+  <button class="filter-btn" onclick="setFilter('complete',this)">✏️ Assignments</button>
+  <button class="filter-btn" onclick="setFilter('attend',this)">🎙 Attend</button>
+  <button class="filter-btn" onclick="setFilter('remaining',this)">⏳ Remaining</button>
+</div>
+
+<div class="weeks" id="weeks"></div>
+
+<script>
+const DATA=[
+{id:1,title:"Week 1",dates:"June 22–27",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 1: Introduction",t:18},
+    {n:"Lecture 2: Key Passage",t:9},
+    {n:"Lecture 3: Hindrances",t:13},
+    {n:"Lecture 4: Life in God's House, Part 1",t:21},
+    {n:"Lecture 5: Life in God's House, Part 2",t:40},
+    {n:"Lecture 6: Life in God's House, Part 3",t:24},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Welch, Side by Side, Intro–ch. 3",t:60},
+    {n:"CCEF Distinctives (online)",t:15},
+    {n:"CCEF Beliefs & History (online)",t:10},
+    {n:"Any 4 blog posts at CCEF.org",t:20},
+    {n:"Any 2 videos at CCEF.org",t:20},
+    {n:"Any 1 podcast at CCEF.org",t:30},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Reading Reflections, Week 1",t:30,due:"Jun 27",pts:10},
+    {n:"Self-Assessment",t:45,due:"Jun 27",pts:100},
+  ]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Live Engagement 1 with OI",t:60,due:"Jun 24 8pm EST"},
+  ]},
+]},
+{id:2,title:"Week 2",dates:"June 29–July 4",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 7: Pursue & Know People",t:41},
+    {n:"Lecture 8: Know the Heart, Part 1",t:40},
+    {n:"Lecture 9: Know the Heart, Part 2",t:21},
+    {n:"Lecture 10: Know God & His Ways",t:16},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Welch, Side by Side, chs. 4–6",t:45},
+    {n:"Dr. Welch's Intro to The Gift of Therapy",t:15},
+    {n:"Yalom, The Gift of Therapy, chs. 1–10",t:60},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Yalom Reading Reflections, Week 2",t:30,due:"Jul 4",pts:10},
+    {n:"Extended Conversation, Week 2 Prompt",t:30,due:"Jul 4"},
+    {n:"Ephesians Reflection & \"Personal\" Paper",t:90,due:"Jul 4",pts:100},
+    {n:"Small Group 1 (Prompts & Questions)",t:20,due:"Jul 4"},
+  ]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Small Group 1 Attendance",t:60,due:"Jul 4",pts:100},
+  ]},
+]},
+{id:3,title:"Week 3",dates:"July 6–11",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 11: Skill 1–Accumulate Wisdom",t:14},
+    {n:"Lecture 12: Skill 2–Move Conversations",t:21},
+    {n:"Lecture 13: Skill 3–Self-Disclosure",t:24},
+    {n:"Lecture 14: Skill 4–Follow the Person, Part 1",t:45},
+    {n:"Lecture 15: Skill 4–Follow the Person, Part 2",t:20},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Welch, Side by Side, chs. 7–9",t:45},
+    {n:"Yalom, The Gift of Therapy, chs. 11–20",t:60},
+    {n:"Miller, The Heart of a Servant Leader (assigned sections)",t:45},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Yalom Reading Reflections, Week 3",t:30,due:"Jul 11",pts:10},
+    {n:"Extended Conversation, Week 3 Prompt",t:30,due:"Jul 11"},
+    {n:"Reflection Paper 1",t:90,due:"Jul 11",pts:100},
+  ]},
+]},
+{id:4,title:"Week 4",dates:"July 13–18",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 16: Skill 5–Consider Your Questions",t:28},
+    {n:"Lecture 17: Skill 6–Know the Experience, Part 1",t:37},
+    {n:"Lecture 18: Skill 6–Know the Experience, Part 2",t:37},
+    {n:"Role Play 1",t:33},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Welch, Side by Side, chs. 10–12",t:45},
+    {n:"Yalom, The Gift of Therapy, chs. 21–30",t:60},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Yalom Reading Reflections, Week 4",t:30,due:"Jul 18",pts:10},
+    {n:"Extended Conversation, Week 4 Prompt",t:30,due:"Jul 18"},
+    {n:"Small Group 2 (Prompts & Questions)",t:20,due:"Jul 18"},
+    {n:"Submit Questions for Live Engagement 2 (optional)",t:15,due:"Jul 18"},
+  ]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Small Group 2 Attendance",t:60,due:"Jul 18",pts:100},
+  ]},
+]},
+{id:5,title:"Week 5",dates:"July 20–25",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 19 (est.)",t:30},
+    {n:"Lecture 20 (est.)",t:30},
+    {n:"Lecture 21 (est.)",t:30},
+    {n:"Lecture 22 (est.)",t:30},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Welch, Side by Side, chs. 13–15",t:45},
+    {n:"Yalom, The Gift of Therapy, chs. 31–40",t:60},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Yalom Reading Reflections, Week 5",t:30},
+    {n:"Extended Conversation, Week 5 Prompt",t:30},
+    {n:"Reflection Paper 2",t:90,pts:100},
+  ]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Live Engagement 2 with OI",t:60},
+  ]},
+]},
+{id:6,title:"Week 6",dates:"July 27–Aug 1",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 23: Skill 1–Accumulate Wisdom",t:28},
+    {n:"Lecture 24: Skill 2–Be Personal",t:30},
+    {n:"Lecture 25: Skill 3–Everyday Language",t:29},
+    {n:"How to Have Better Conversations | Jordan Peterson",t:6},
+    {n:"How to Have a Good Conversation | Celeste Headlee",t:12},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Welch, Side by Side, chs. 16–conclusion",t:45},
+    {n:"Yalom, The Gift of Therapy, chs. 41–50",t:60},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Yalom Reading Reflections, Week 6",t:30,due:"Aug 1",pts:10},
+    {n:"Extended Conversation, Week 6 Prompt",t:30,due:"Aug 1"},
+    {n:"Small Group 3 (Prompts & Questions)",t:20,due:"Aug 1"},
+  ]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Small Group 3 Attendance",t:60,due:"Aug 1",pts:100},
+  ]},
+]},
+{id:7,title:"Week 7",dates:"Aug 3–8",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 26: Skill 4–Keep in Step with the Spirit, Part 1",t:46},
+    {n:"Lecture 27: Skill 4–Keep in Step with the Spirit, Part 2",t:33},
+    {n:"Lecture 28: Skill 5–Access Scripture Together",t:32},
+    {n:"Role Play 2",t:19},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Welch, Caring for One Another, Preface–Lesson 5",t:45},
+    {n:"Yalom, The Gift of Therapy, chs. 51–60",t:60},
+    {n:"Miller, The Heart of a Servant Leader (assigned sections)",t:45},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Yalom Reading Reflections, Week 7",t:30,due:"Aug 8",pts:10},
+    {n:"Extended Conversation, Week 7 Prompt",t:30,due:"Aug 8"},
+    {n:"Reflection Paper 3",t:90,due:"Aug 8",pts:100},
+  ]},
+]},
+{id:8,title:"Week 8",dates:"Aug 10–15",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 29: Skill 6–Distinguish Scripture & Advice",t:19},
+    {n:"Lecture 30: Skill 7–Skills with Sinners, Part 1",t:31},
+    {n:"Lecture 31: Skill 7–Skills with Sinners, Part 2",t:40},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Welch, Caring for One Another, Lesson 6–notes",t:30},
+    {n:"Yalom, The Gift of Therapy, chs. 61–70",t:60},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Yalom Reading Reflections, Week 8",t:30,due:"Aug 15",pts:10},
+    {n:"Extended Conversation, Week 8 Prompt",t:30,due:"Aug 15"},
+    {n:"Small Group 4 (Prompts & Questions)",t:20,due:"Aug 15"},
+    {n:"Submit Questions for Live Engagement 3 (optional)",t:15,due:"Aug 15"},
+  ]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Small Group 4 Attendance",t:60,due:"Aug 15",pts:100},
+  ]},
+]},
+{id:9,title:"Week 9",dates:"Aug 17–22",sections:[
+  {label:"Watch",type:"watch",tasks:[
+    {n:"Lecture 32: Skill 8–Skills with Sufferers",t:47},
+    {n:"Lecture 33: Skill 9–Retell Stories",t:39},
+    {n:"Lecture 34: Closing",t:14},
+    {n:"Role Play 3",t:45},
+  ]},
+  {label:"Read",type:"read",tasks:[
+    {n:"Yalom, The Gift of Therapy, chs. 71–85",t:75},
+  ]},
+  {label:"Assignments",type:"complete",tasks:[
+    {n:"Yalom Reading Reflections, Week 9",t:30,due:"Aug 22",pts:10},
+    {n:"Extended Conversation, Week 9 Prompt",t:30,due:"Aug 22"},
+  ]},
+  {label:"Attend",type:"attend",tasks:[
+    {n:"Live Engagement 3 with OI",t:60,due:"Aug 20 8pm EST"},
+  ]},
+]},
+{id:10,title:"Week 10",dates:"Aug 24–29",sections:[
+  {label:"Final Assignments",type:"complete",tasks:[
+    {n:"Extended Conversation Partner Log",t:30,due:"Aug 29",pts:10},
+    {n:"Extended Conversation Partner Final Letter",t:45,due:"Aug 29",pts:10},
+    {n:"Final Paper",t:180,due:"Aug 29",pts:100},
+    {n:"Complete June 2026 Course Evaluation",t:15,due:"Aug 29"},
+  ]},
+]},
+];
+
+const KEY='healing-rel-v1';
+let checked={};
+let filter='all';
+let openWeeks=new Set([1]);
+
+function load(){try{const d=localStorage.getItem(KEY);if(d){const p=JSON.parse(d);checked=p.checked||{};if(p.openWeeks)openWeeks=new Set(p.openWeeks);}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({checked,openWeeks:[...openWeeks]}));}catch(e){}}
+
+function fmtTime(t){if(t<60)return t+'min';const h=Math.floor(t/60),m=t%60;return h+'h'+(m?m+'m':'');}
+function tid(wid,si,ti){return`w${wid}s${si}t${ti}`;}
+
+function setFilter(f,btn){
+  filter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function toggle(id,el){
+  checked[id]=!checked[id];
+  save();
+  el.classList.toggle('checked',checked[id]);
+  el.classList.add('pop');
+  setTimeout(()=>el.classList.remove('pop'),300);
+  const nameEl=el.closest('.task').querySelector('.task-name');
+  if(nameEl)nameEl.classList.toggle('done',checked[id]);
+  updateStats();
+  const wid=parseInt(id.match(/w(\d+)/)[1]);
+  updateWeekHeader(wid);
+}
+
+function toggleWeek(id){
+  if(openWeeks.has(id))openWeeks.delete(id);else openWeeks.add(id);
+  save();
+  const body=document.getElementById('wb-'+id);
+  const chev=document.getElementById('wc-'+id);
+  if(body){body.classList.toggle('open',openWeeks.has(id));}
+  if(chev){chev.classList.toggle('open',openWeeks.has(id));}
+}
+
+function updateStats(){
+  let total=0,done=0,remMins=0;
+  DATA.forEach(w=>w.sections.forEach((s,si)=>s.tasks.forEach((task,ti)=>{
+    total++;
+    const id=tid(w.id,si,ti);
+    if(checked[id])done++;
+    else remMins+=task.t;
+  })));
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-total').textContent=total;
+  const h=Math.floor(remMins/60),m=remMins%60;
+  document.getElementById('s-hrs').textContent=h>0?(h+'h'+(m?m+'m':'')):(remMins+'m');
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('s-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+function updateWeekHeader(wid){
+  const w=DATA.find(x=>x.id===wid);
+  if(!w)return;
+  let wt=0,wd=0;
+  w.sections.forEach((s,si)=>s.tasks.forEach((task,ti)=>{
+    wt++;if(checked[tid(wid,si,ti)])wd++;
+  }));
+  const pct=wt>0?Math.round(wd/wt*100):0;
+  const pEl=document.getElementById('wpct-'+wid);
+  const cEl=document.getElementById('wcnt-'+wid);
+  const fEl=document.getElementById('wfill-'+wid);
+  if(pEl)pEl.textContent=pct+'%';
+  if(cEl)cEl.textContent=wd+'/'+wt+' done';
+  if(fEl)fEl.style.width=pct+'%';
+}
+
+function render(){
+  const container=document.getElementById('weeks');
+  container.innerHTML='';
+
+  DATA.forEach(w=>{
+    let wTotal=0,wDone=0;
+    let bodyHTML='';
+
+    w.sections.forEach((s,si)=>{
+      let secHTML='';
+      let hasVisible=false;
+      s.tasks.forEach((task,ti)=>{
+        const id=tid(w.id,si,ti);
+        const isDone=!!checked[id];
+        const show=(filter==='all')||(filter===s.type)||(filter==='remaining'&&!isDone);
+        wTotal++;if(isDone)wDone++;
+        if(!show)return;
+        hasVisible=true;
+        const pills=[
+          `<span class="pill pill-time">${fmtTime(task.t)}</span>`,
+          task.due?`<span class="pill pill-due">Due ${task.due}</span>`:'',
+          task.pts?`<span class="pill pill-pts">${task.pts} pts</span>`:'',
+        ].filter(Boolean).join('');
+        secHTML+=`<div class="task" onclick="toggle('${id}',this.querySelector('.task-check'))">
+          <div class="task-check${isDone?' checked':''}" id="chk-${id}"></div>
+          <div class="task-body">
+            <div class="task-name${isDone?' done':''}">${task.n}</div>
+            <div class="task-meta">${pills}</div>
+          </div>
+        </div>`;
+      });
+      if(hasVisible){
+        bodyHTML+=`<div class="sec-lbl">${s.label}</div>${secHTML}`;
+      }
+    });
+
+    const pct=wTotal>0?Math.round(wDone/wTotal*100):0;
+    const isOpen=openWeeks.has(w.id);
+    const div=document.createElement('div');
+    div.className='week';
+    div.innerHTML=`
+      <div class="week-hdr" onclick="toggleWeek(${w.id})">
+        <div class="week-icon">W${w.id}</div>
+        <div class="week-info">
+          <div class="week-name">${w.title}</div>
+          <div class="week-dates">${w.dates}</div>
+        </div>
+        <div class="week-right">
+          <div class="week-pct" id="wpct-${w.id}">${pct}%</div>
+          <div class="week-count" id="wcnt-${w.id}">${wDone}/${wTotal} done</div>
+        </div>
+        <div class="chev${isOpen?' open':''}" id="wc-${w.id}">›</div>
+      </div>
+      <div class="week-prog"><div class="week-prog-fill" id="wfill-${w.id}" style="width:${pct}%"></div></div>
+      <div class="week-body${isOpen?' open':''}" id="wb-${w.id}">
+        ${bodyHTML||'<div class="empty">No items match this filter.</div>'}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  updateStats();
+}
+
+load();render();
+</script>
+</body>
+</html>
