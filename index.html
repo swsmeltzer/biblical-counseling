@@ -78,12 +78,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .task-name{font-size:14px;color:var(--text);line-height:1.4}
 .task-name.done{color:var(--hint);text-decoration:line-through}
 .task-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
-.task-actions{display:flex;gap:6px;margin-top:8px;position:relative;z-index:5}
-.pill{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
-.pill-time{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-.pill-due{background:#FFF8EC;color:#8B5E00;border:1px solid #FAECC5}
-.pill-pts{background:var(--green-light);color:var(--green-dark);border:1px solid #9FE1CB}
-@media(prefers-color-scheme:dark){.pill-due{background:#2A1F08;color:#E8C56A;border-color:#4A3510}}
+.task-actions{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.notes-link{font-size:13px;color:var(--green);font-weight:500;padding:6px 0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:rgba(29,158,117,0.15)}
+.notes-link:active{opacity:0.5}
+.audio-link{color:#185FA5}
+@media(prefers-color-scheme:dark){.notes-link{color:#5DCAA5}.audio-link{color:#85B7EB}}
 
 /* Action buttons on task */
 .task-btn{font-size:13px;padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;gap:4px;min-height:36px;position:relative;z-index:5}
@@ -857,10 +856,10 @@ function render(){
         // Action buttons
         let actions = '';
         if(task.lec){
-          actions += `<button class="task-btn notes-btn" onclick="event.stopPropagation();openNotes(${task.lec},'${task.n.replace(/'/g,"\\'")}')">📓 Outline & Notes</button>`;
+          actions += `<div class="notes-link" onclick="openNotes(${task.lec},'${task.n.replace(/'/g,"\\'")}')">📓 Tap to open outline &amp; notes →</div>`;
         }
         if(task.lec && AUDIO[task.lec]){
-          actions += `<button class="task-btn audio-btn" onclick="event.stopPropagation();window.open('${AUDIO[task.lec]}','_blank')">▶ Play Audio</button>`;
+          actions += `<div class="notes-link audio-link" onclick="window.open('${AUDIO[task.lec]}','_blank')">▶ Play audio</div>`;
         }
 
         secHTML+=`<div class="task">
