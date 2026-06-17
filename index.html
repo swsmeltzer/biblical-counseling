@@ -10,54 +10,39 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --green:#1D9E75;
-  --green-light:#E1F5EE;
-  --green-dark:#0F6E56;
-  --bg:#F9F9F7;
-  --surface:#FFFFFF;
-  --border:#E5E3DC;
-  --text:#1C1C1A;
-  --muted:#6B6B67;
-  --hint:#A0A09C;
-  --radius:12px;
-  --radius-sm:8px;
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;
+  --bg:#F9F9F7;--surface:#FFFFFF;--border:#E5E3DC;
+  --text:#1C1C1A;--muted:#6B6B67;--hint:#A0A09C;
+  --radius:12px;--radius-sm:8px;
 }
 @media(prefers-color-scheme:dark){
-  :root{
-    --bg:#141412;
-    --surface:#1E1E1B;
-    --border:#2E2E2A;
-    --text:#F0EFE8;
-    --muted:#9A9A96;
-    --hint:#5A5A56;
-    --green-light:#0a3326;
-  }
+  :root{--bg:#141412;--surface:#1E1E1B;--border:#2E2E2A;--text:#F0EFE8;--muted:#9A9A96;--hint:#5A5A56;--green-light:#0a3326;}
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
-/* Top bar */
 .topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:12px;height:56px}
 .topbar h1{font-size:17px;font-weight:600;flex:1;color:var(--text)}
 .topbar .subtitle{font-size:12px;color:var(--muted);font-weight:400;display:block}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--hint);flex-shrink:0;transition:background 0.3s}
+.sync-dot.syncing{background:#E8A020;animation:pulse 1s infinite}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.err{background:#C0392B}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
-/* Stats strip */
 .stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
 .stat-cell{background:var(--surface);padding:10px 8px;text-align:center}
 .stat-cell .val{font-size:18px;font-weight:600;color:var(--text);display:block}
 .stat-cell .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-top:1px}
 
-/* Progress */
 .prog-wrap{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px 12px}
 .prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:10px}
 .prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.4s ease}
 
-/* Filters */
 .filters{padding:12px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--bg)}
 .filters::-webkit-scrollbar{display:none}
 .filter-btn{flex-shrink:0;font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s}
 .filter-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
 
-/* Weeks */
 .weeks{padding:0 16px 32px}
 .week{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
 .week-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -69,20 +54,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .week-right{text-align:right;flex-shrink:0}
 .week-pct{font-size:14px;font-weight:600;color:var(--green)}
 .week-count{font-size:11px;color:var(--muted);margin-top:1px}
-.chev{font-size:18px;color:var(--hint);transition:transform 0.2s;margin-left:4px}
-.chev.open{transform:rotate(180deg)}
-
+.chev{font-size:20px;color:var(--hint);transition:transform 0.2s;margin-left:4px;line-height:1}
+.chev.open{transform:rotate(90deg)}
 .week-body{display:none}
 .week-body.open{display:block}
-
-/* Week mini progress */
 .week-prog{height:3px;background:var(--border)}
 .week-prog-fill{height:100%;background:var(--green);transition:width 0.3s}
 
-/* Section label */
 .sec-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;padding:12px 16px 4px}
-
-/* Task row */
 .task{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-top:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.1s}
 .task:active{background:var(--bg)}
 .task-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.15s}
@@ -96,16 +75,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pill-time{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
 .pill-due{background:#FFF8EC;color:#8B5E00;border:1px solid #FAECC5}
 .pill-pts{background:var(--green-light);color:var(--green-dark);border:1px solid #9FE1CB}
-@media(prefers-color-scheme:dark){
-  .pill-due{background:#2A1F08;color:#E8C56A;border-color:#4A3510}
-}
-
-/* Empty */
+@media(prefers-color-scheme:dark){.pill-due{background:#2A1F08;color:#E8C56A;border-color:#4A3510}}
 .empty{padding:20px 16px;font-size:13px;color:var(--muted);text-align:center}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.task-check.pop{animation:pop 0.2s ease}
 
-/* Celebrate */
-@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
-.task-check.pop{animation:pop 0.25s ease}
+.setup-banner{background:#FFF8EC;border:1px solid #FAECC5;border-radius:var(--radius);margin:16px 16px 0;padding:14px 16px;font-size:13px;color:#6B4A00;line-height:1.6}
+.setup-banner strong{font-weight:600;display:block;margin-bottom:4px;font-size:14px}
+.setup-banner.hidden{display:none}
 </style>
 </head>
 <body>
@@ -115,6 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <span style="font-size:17px;font-weight:600;color:var(--text)">Healing Relationships</span>
     <span class="subtitle">CCEF Biblical Counseling · June–August 2025</span>
   </div>
+  <div class="sync-dot" id="sync-dot" title="Sync status"></div>
 </div>
 
 <div class="stats-strip">
@@ -123,9 +101,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="stat-cell"><span class="val" id="s-hrs">—</span><span class="lbl">Hrs left</span></div>
   <div class="stat-cell"><span class="val" id="s-pct">0%</span><span class="lbl">Complete</span></div>
 </div>
-
 <div class="prog-wrap">
   <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<div id="setup-banner" class="setup-banner">
+  <strong>⚙️ Setup required</strong>
+  Open this file in a text editor and replace <code>YOUR_SUPABASE_URL</code> and <code>YOUR_SUPABASE_ANON_KEY</code> near the top of the &lt;script&gt; section with your actual Supabase credentials, then re-upload to GitHub.
 </div>
 
 <div class="filters">
@@ -140,6 +122,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="weeks" id="weeks"></div>
 
 <script>
+// ── PASTE YOUR SUPABASE CREDENTIALS HERE ──────────────────────────────────
+const SUPABASE_URL = 'https://jhvfzpjexjlbfzazuutc.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmZ6cGpleGpsYmZ6YXp1dXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MTIzODMsImV4cCI6MjA5NzI4ODM4M30.Z8t0LDfIMdLfwVY-C0ieLeNxXfgt_7W47VIPyI6b1ck';
+// ─────────────────────────────────────────────────────────────────────────
+
+const CONFIGURED = !SUPABASE_URL.includes('YOUR_');
+const LOCAL_KEY = 'healing-rel-v2';
+
 const DATA=[
 {id:1,title:"Week 1",dates:"June 22–27",sections:[
   {label:"Watch",type:"watch",tasks:[
@@ -230,10 +220,8 @@ const DATA=[
 ]},
 {id:5,title:"Week 5",dates:"July 20–25",sections:[
   {label:"Watch",type:"watch",tasks:[
-    {n:"Lecture 19 (est.)",t:30},
-    {n:"Lecture 20 (est.)",t:30},
-    {n:"Lecture 21 (est.)",t:30},
-    {n:"Lecture 22 (est.)",t:30},
+    {n:"Lecture 19 (est.)",t:30},{n:"Lecture 20 (est.)",t:30},
+    {n:"Lecture 21 (est.)",t:30},{n:"Lecture 22 (est.)",t:30},
   ]},
   {label:"Read",type:"read",tasks:[
     {n:"Welch, Side by Side, chs. 13–15",t:45},
@@ -244,9 +232,7 @@ const DATA=[
     {n:"Extended Conversation, Week 5 Prompt",t:30},
     {n:"Reflection Paper 2",t:90,pts:100},
   ]},
-  {label:"Attend",type:"attend",tasks:[
-    {n:"Live Engagement 2 with OI",t:60},
-  ]},
+  {label:"Attend",type:"attend",tasks:[{n:"Live Engagement 2 with OI",t:60}]},
 ]},
 {id:6,title:"Week 6",dates:"July 27–Aug 1",sections:[
   {label:"Watch",type:"watch",tasks:[
@@ -265,9 +251,7 @@ const DATA=[
     {n:"Extended Conversation, Week 6 Prompt",t:30,due:"Aug 1"},
     {n:"Small Group 3 (Prompts & Questions)",t:20,due:"Aug 1"},
   ]},
-  {label:"Attend",type:"attend",tasks:[
-    {n:"Small Group 3 Attendance",t:60,due:"Aug 1",pts:100},
-  ]},
+  {label:"Attend",type:"attend",tasks:[{n:"Small Group 3 Attendance",t:60,due:"Aug 1",pts:100}]},
 ]},
 {id:7,title:"Week 7",dates:"Aug 3–8",sections:[
   {label:"Watch",type:"watch",tasks:[
@@ -303,9 +287,7 @@ const DATA=[
     {n:"Small Group 4 (Prompts & Questions)",t:20,due:"Aug 15"},
     {n:"Submit Questions for Live Engagement 3 (optional)",t:15,due:"Aug 15"},
   ]},
-  {label:"Attend",type:"attend",tasks:[
-    {n:"Small Group 4 Attendance",t:60,due:"Aug 15",pts:100},
-  ]},
+  {label:"Attend",type:"attend",tasks:[{n:"Small Group 4 Attendance",t:60,due:"Aug 15",pts:100}]},
 ]},
 {id:9,title:"Week 9",dates:"Aug 17–22",sections:[
   {label:"Watch",type:"watch",tasks:[
@@ -314,16 +296,12 @@ const DATA=[
     {n:"Lecture 34: Closing",t:14},
     {n:"Role Play 3",t:45},
   ]},
-  {label:"Read",type:"read",tasks:[
-    {n:"Yalom, The Gift of Therapy, chs. 71–85",t:75},
-  ]},
+  {label:"Read",type:"read",tasks:[{n:"Yalom, The Gift of Therapy, chs. 71–85",t:75}]},
   {label:"Assignments",type:"complete",tasks:[
     {n:"Yalom Reading Reflections, Week 9",t:30,due:"Aug 22",pts:10},
     {n:"Extended Conversation, Week 9 Prompt",t:30,due:"Aug 22"},
   ]},
-  {label:"Attend",type:"attend",tasks:[
-    {n:"Live Engagement 3 with OI",t:60,due:"Aug 20 8pm EST"},
-  ]},
+  {label:"Attend",type:"attend",tasks:[{n:"Live Engagement 3 with OI",t:60,due:"Aug 20 8pm EST"}]},
 ]},
 {id:10,title:"Week 10",dates:"Aug 24–29",sections:[
   {label:"Final Assignments",type:"complete",tasks:[
@@ -335,53 +313,109 @@ const DATA=[
 ]},
 ];
 
-const KEY='healing-rel-v1';
-let checked={};
-let filter='all';
-let openWeeks=new Set([1]);
+// ── State ──────────────────────────────────────────────────────────────────
+let checked = {};
+let filter = 'all';
+let openWeeks = new Set([1]);
+let syncTimer = null;
 
-function load(){try{const d=localStorage.getItem(KEY);if(d){const p=JSON.parse(d);checked=p.checked||{};if(p.openWeeks)openWeeks=new Set(p.openWeeks);}}catch(e){}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({checked,openWeeks:[...openWeeks]}));}catch(e){}}
-
-function fmtTime(t){if(t<60)return t+'min';const h=Math.floor(t/60),m=t%60;return h+'h'+(m?m+'m':'');}
-function tid(wid,si,ti){return`w${wid}s${si}t${ti}`;}
-
-function setFilter(f,btn){
-  filter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  render();
+// ── Local storage fallback ────────────────────────────────────────────────
+function localLoad(){
+  try{const d=localStorage.getItem(LOCAL_KEY);if(d){const p=JSON.parse(d);checked=p.checked||{};if(p.openWeeks)openWeeks=new Set(p.openWeeks);}}catch(e){}
+}
+function localSave(){
+  try{localStorage.setItem(LOCAL_KEY,JSON.stringify({checked,openWeeks:[...openWeeks]}));}catch(e){}
 }
 
-function toggle(id,el){
+// ── Sync dot ──────────────────────────────────────────────────────────────
+function dot(state){
+  const el=document.getElementById('sync-dot');
+  el.className='sync-dot '+(state||'');
+}
+
+// ── Supabase helpers ──────────────────────────────────────────────────────
+async function dbFetch(){
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/progress?id=eq.main&select=checked`,{
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+  });
+  if(!r.ok)throw new Error('fetch failed');
+  const rows=await r.json();
+  return rows[0]?.checked||{};
+}
+
+async function dbSave(data){
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/progress?id=eq.main`,{
+    method:'PATCH',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({checked:data,updated_at:new Date().toISOString()})
+  });
+  if(!r.ok)throw new Error('save failed');
+}
+
+async function loadFromCloud(){
+  if(!CONFIGURED){localLoad();return;}
+  dot('syncing');
+  try{
+    const remote=await dbFetch();
+    checked=remote;
+    localSave();
+    dot('ok');
+  }catch(e){
+    localLoad();
+    dot('err');
+  }
+}
+
+function scheduleSave(){
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(pushToCloud,800);
+}
+
+async function pushToCloud(){
+  if(!CONFIGURED){localSave();return;}
+  dot('syncing');
+  try{
+    await dbSave(checked);
+    localSave();
+    dot('ok');
+  }catch(e){
+    localSave();
+    dot('err');
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function fmtTime(t){if(t<60)return t+'min';const h=Math.floor(t/60),m=t%60;return h+'h'+(m?m+'m':'');}
+function tid(wid,si,ti){return`w${wid}s${si}t${ti}`;}
+function setFilter(f,btn){filter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
+
+function toggle(id,checkEl){
   checked[id]=!checked[id];
-  save();
-  el.classList.toggle('checked',checked[id]);
-  el.classList.add('pop');
-  setTimeout(()=>el.classList.remove('pop'),300);
-  const nameEl=el.closest('.task').querySelector('.task-name');
+  checkEl.classList.toggle('checked',checked[id]);
+  checkEl.classList.add('pop');
+  setTimeout(()=>checkEl.classList.remove('pop'),250);
+  const nameEl=checkEl.closest('.task').querySelector('.task-name');
   if(nameEl)nameEl.classList.toggle('done',checked[id]);
   updateStats();
   const wid=parseInt(id.match(/w(\d+)/)[1]);
   updateWeekHeader(wid);
+  scheduleSave();
 }
 
 function toggleWeek(id){
   if(openWeeks.has(id))openWeeks.delete(id);else openWeeks.add(id);
-  save();
   const body=document.getElementById('wb-'+id);
   const chev=document.getElementById('wc-'+id);
-  if(body){body.classList.toggle('open',openWeeks.has(id));}
-  if(chev){chev.classList.toggle('open',openWeeks.has(id));}
+  if(body)body.classList.toggle('open',openWeeks.has(id));
+  if(chev)chev.classList.toggle('open',openWeeks.has(id));
+  scheduleSave();
 }
 
 function updateStats(){
   let total=0,done=0,remMins=0;
   DATA.forEach(w=>w.sections.forEach((s,si)=>s.tasks.forEach((task,ti)=>{
-    total++;
-    const id=tid(w.id,si,ti);
-    if(checked[id])done++;
-    else remMins+=task.t;
+    total++;const id=tid(w.id,si,ti);
+    if(checked[id])done++;else remMins+=task.t;
   })));
   document.getElementById('s-done').textContent=done;
   document.getElementById('s-total').textContent=total;
@@ -393,86 +427,63 @@ function updateStats(){
 }
 
 function updateWeekHeader(wid){
-  const w=DATA.find(x=>x.id===wid);
-  if(!w)return;
+  const w=DATA.find(x=>x.id===wid);if(!w)return;
   let wt=0,wd=0;
-  w.sections.forEach((s,si)=>s.tasks.forEach((task,ti)=>{
-    wt++;if(checked[tid(wid,si,ti)])wd++;
-  }));
+  w.sections.forEach((s,si)=>s.tasks.forEach((_,ti)=>{wt++;if(checked[tid(wid,si,ti)])wd++;}));
   const pct=wt>0?Math.round(wd/wt*100):0;
-  const pEl=document.getElementById('wpct-'+wid);
-  const cEl=document.getElementById('wcnt-'+wid);
-  const fEl=document.getElementById('wfill-'+wid);
-  if(pEl)pEl.textContent=pct+'%';
-  if(cEl)cEl.textContent=wd+'/'+wt+' done';
-  if(fEl)fEl.style.width=pct+'%';
+  const p=document.getElementById('wpct-'+wid);const c=document.getElementById('wcnt-'+wid);const f=document.getElementById('wfill-'+wid);
+  if(p)p.textContent=pct+'%';if(c)c.textContent=wd+'/'+wt+' done';if(f)f.style.width=pct+'%';
 }
 
 function render(){
-  const container=document.getElementById('weeks');
-  container.innerHTML='';
+  const container=document.getElementById('weeks');container.innerHTML='';
+  if(!CONFIGURED)document.getElementById('setup-banner').classList.remove('hidden');
+  else document.getElementById('setup-banner').classList.add('hidden');
 
   DATA.forEach(w=>{
-    let wTotal=0,wDone=0;
-    let bodyHTML='';
-
+    let wTotal=0,wDone=0,bodyHTML='';
     w.sections.forEach((s,si)=>{
-      let secHTML='';
-      let hasVisible=false;
+      let secHTML='',hasVisible=false;
       s.tasks.forEach((task,ti)=>{
-        const id=tid(w.id,si,ti);
-        const isDone=!!checked[id];
+        const id=tid(w.id,si,ti);const isDone=!!checked[id];
         const show=(filter==='all')||(filter===s.type)||(filter==='remaining'&&!isDone);
         wTotal++;if(isDone)wDone++;
         if(!show)return;
         hasVisible=true;
         const pills=[
           `<span class="pill pill-time">${fmtTime(task.t)}</span>`,
-          task.due?`<span class="pill pill-due">Due ${task.due}</span>`:'',
+          task.due?`<span class="pill pill-due">Due ${task.due}`+`</span>`:'',
           task.pts?`<span class="pill pill-pts">${task.pts} pts</span>`:'',
         ].filter(Boolean).join('');
         secHTML+=`<div class="task" onclick="toggle('${id}',this.querySelector('.task-check'))">
-          <div class="task-check${isDone?' checked':''}" id="chk-${id}"></div>
+          <div class="task-check${isDone?' checked':''}"></div>
           <div class="task-body">
             <div class="task-name${isDone?' done':''}">${task.n}</div>
             <div class="task-meta">${pills}</div>
           </div>
         </div>`;
       });
-      if(hasVisible){
-        bodyHTML+=`<div class="sec-lbl">${s.label}</div>${secHTML}`;
-      }
+      if(hasVisible)bodyHTML+=`<div class="sec-lbl">${s.label}</div>${secHTML}`;
     });
-
     const pct=wTotal>0?Math.round(wDone/wTotal*100):0;
     const isOpen=openWeeks.has(w.id);
-    const div=document.createElement('div');
-    div.className='week';
+    const div=document.createElement('div');div.className='week';
     div.innerHTML=`
       <div class="week-hdr" onclick="toggleWeek(${w.id})">
         <div class="week-icon">W${w.id}</div>
-        <div class="week-info">
-          <div class="week-name">${w.title}</div>
-          <div class="week-dates">${w.dates}</div>
-        </div>
-        <div class="week-right">
-          <div class="week-pct" id="wpct-${w.id}">${pct}%</div>
-          <div class="week-count" id="wcnt-${w.id}">${wDone}/${wTotal} done</div>
-        </div>
+        <div class="week-info"><div class="week-name">${w.title}</div><div class="week-dates">${w.dates}</div></div>
+        <div class="week-right"><div class="week-pct" id="wpct-${w.id}">${pct}%</div><div class="week-count" id="wcnt-${w.id}">${wDone}/${wTotal} done</div></div>
         <div class="chev${isOpen?' open':''}" id="wc-${w.id}">›</div>
       </div>
       <div class="week-prog"><div class="week-prog-fill" id="wfill-${w.id}" style="width:${pct}%"></div></div>
-      <div class="week-body${isOpen?' open':''}" id="wb-${w.id}">
-        ${bodyHTML||'<div class="empty">No items match this filter.</div>'}
-      </div>
-    `;
+      <div class="week-body${isOpen?' open':''}" id="wb-${w.id}">${bodyHTML||'<div class="empty">No items match this filter.</div>'}</div>`;
     container.appendChild(div);
   });
-
   updateStats();
 }
 
-load();render();
+// ── Boot ──────────────────────────────────────────────────────────────────
+loadFromCloud().then(()=>render());
 </script>
 </body>
 </html>
