@@ -184,7 +184,7 @@ const SUPABASE_URL = 'https://jhvfzpjexjlbfzazuutc.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmZ6cGpleGpsYmZ6YXp1dXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MTIzODMsImV4cCI6MjA5NzI4ODM4M30.Z8t0LDfIMdLfwVY-C0ieLeNxXfgt_7W47VIPyI6b1ck';
 const LOCAL_KEY = 'helping-rel-v3';
 
-const NOTEBOOK = {
+let NOTEBOOK = {
   1: {
     title: "Lecture 1: Introduction",
     sections: [
@@ -479,7 +479,7 @@ const NOTEBOOK = {
   },
 };
 // ── Course data ────────────────────────────────────────────
-const DATA=[
+let DATA=[
 {id:1,title:"Week 1",dates:"June 22–27",sections:[
   {label:"Watch",type:"watch",tasks:[
     {n:"Lecture 1: Introduction",t:18,lec:1},
@@ -676,7 +676,7 @@ const DATA=[
 ];
 
 // Audio links — Google Drive
-const AUDIO = {
+let AUDIO = {
   1: 'https://drive.google.com/file/d/1Z-Yl9pCsoLUV8_5W3lw40LxPBGNzjgAZ/preview',
   2: 'https://drive.google.com/file/d/1kpfL6P81RnNHub38HQq-L4nDCC7Ic66H/preview',
   3: 'https://drive.google.com/file/d/1MEdmTkyQmOl0Pbj8bjk0wdyO5qlerfXr/preview',
@@ -1085,15 +1085,15 @@ function switchCourse(course, btn){
   document.querySelectorAll('.course-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   if(course === 'hr'){
-    window.DATA = HR_DATA;
-    window.NOTEBOOK = HR_NOTEBOOK;
-    window.AUDIO = HR_AUDIO;
+    DATA = HR_DATA;
+    NOTEBOOK = HR_NOTEBOOK;
+    AUDIO = HR_AUDIO;
     document.getElementById('course-title').textContent = 'Helping Relationships';
     document.getElementById('course-subtitle').textContent = 'CCEF Biblical Counseling · June–August 2025';
   } else {
-    window.DATA = DBC_DATA;
-    window.NOTEBOOK = DBC_NOTEBOOK;
-    window.AUDIO = {};
+    DATA = DBC_DATA;
+    NOTEBOOK = DBC_NOTEBOOK;
+    AUDIO = {};
     document.getElementById('course-title').textContent = 'Dynamics of Biblical Change';
     document.getElementById('course-subtitle').textContent = 'CCEF Biblical Counseling · 10 Weeks';
   }
@@ -1108,9 +1108,6 @@ function switchCourse(course, btn){
 const HR_DATA = DATA;
 const HR_NOTEBOOK = NOTEBOOK;
 const HR_AUDIO = AUDIO;
-window.DATA = HR_DATA;
-window.NOTEBOOK = HR_NOTEBOOK;
-window.AUDIO = HR_AUDIO;
 localLoad();
 loadFromCloud().then(()=>render());
 </script>
