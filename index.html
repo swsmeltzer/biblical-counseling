@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="cache-bust" content="v20">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CCEF Courses">
@@ -1083,7 +1084,7 @@ function render(){
 function switchCourse(course, btn){
   if(currentCourse === course) return;
   currentCourse = course;
-  LOCAL_KEY = course === 'hr' ? LOCAL_KEY_HR : LOCAL_KEY_DBC;
+  LOCAL_KEY = course === 'hr' ? 'hrCourse_v1' : 'dbcCourse_v1';
   document.querySelectorAll('.course-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   if(course === 'hr'){
@@ -1613,7 +1614,7 @@ const DBC_LEC_KEYS = {
 document.addEventListener('DOMContentLoaded', function(){
   const urlParams = new URLSearchParams(window.location.search);
   currentCourse = urlParams.get('course') === 'dbc' ? 'dbc' : 'hr';
-  LOCAL_KEY = currentCourse === 'hr' ? LOCAL_KEY_HR : LOCAL_KEY_DBC;
+  LOCAL_KEY = currentCourse === 'hr' ? 'hrCourse_v1' : 'dbcCourse_v1';
 
   if(currentCourse === 'dbc'){
     DATA = DBC_DATA;
