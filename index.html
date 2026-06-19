@@ -181,6 +181,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="notes-page-body" id="panel-body"></div>
 </div>
 
+<div class="notes-page" id="reading-page">
+  <div class="notes-page-header">
+    <span class="notes-back" onclick="closeReading()">← Back</span>
+    <div class="notes-page-title" id="reading-page-title">Reading</div>
+  </div>
+  <div class="notes-page-body" id="reading-page-body"></div>
+</div>
+
 <script>
 const SUPABASE_URL = 'https://jhvfzpjexjlbfzazuutc.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmZ6cGpleGpsYmZ6YXp1dXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MTIzODMsImV4cCI6MjA5NzI4ODM4M30.Z8t0LDfIMdLfwVY-C0ieLeNxXfgt_7W47VIPyI6b1ck';
@@ -1546,6 +1554,40 @@ function closePanel(){
   panelLecNum = null;
 }
 
+function openReading(weekId){
+  const articles = DBC_READINGS[weekId];
+  document.getElementById('reading-page-title').textContent = `Week ${weekId} Reading`;
+  let html = '';
+  if(articles && articles.length){
+    articles.forEach(art=>{
+      html += `<div class="nb-section">`;
+      html += `<div class="nb-section-heading">${escHtml(art.title)}</div>`;
+      html += `<div class="nb-item" style="font-style:italic;color:var(--muted);margin-bottom:8px;">by ${escHtml(art.author)}</div>`;
+      html += `<div class="nb-item scripture">${escHtml(art.thesis)}</div>`;
+      html += `<div class="nb-item" style="margin-top:10px;"><strong>Summary</strong></div>`;
+      html += `<div class="nb-item">${escHtml(art.summary)}</div>`;
+      if(art.points && art.points.length){
+        html += `<div class="nb-item" style="margin-top:10px;"><strong>Key Points</strong></div>`;
+        art.points.forEach(p=>{html += `<div class="nb-item">• ${escHtml(p)}</div>`;});
+      }
+      if(art.takeaways && art.takeaways.length){
+        html += `<div class="nb-item" style="margin-top:10px;"><strong>Takeaways</strong></div>`;
+        art.takeaways.forEach(t=>{html += `<div class="nb-item">• ${escHtml(t)}</div>`;});
+      }
+      html += `</div>`;
+    });
+  } else {
+    html = `<div class="nb-placeholder">No reading summaries available for this week yet.</div>`;
+  }
+  document.getElementById('reading-page-body').innerHTML = html;
+  document.getElementById('reading-page').classList.add('open');
+  window.scrollTo(0,0);
+}
+
+function closeReading(){
+  document.getElementById('reading-page').classList.remove('open');
+}
+
 let noteTimer = null;
 function saveNote(lecNum, val){
   notesData['lec-'+lecNum] = val;
@@ -1605,6 +1647,18 @@ function render(){
       if(hasVisible)bodyHTML+=`<div class="sec-lbl">${s.label}</div>${secHTML}`;
     });
 
+    // Reading button for DBC weeks with required reading
+    if(currentCourse === 'dbc' && DBC_READINGS[w.id] && (filter==='all'||filter==='read')){
+      bodyHTML += `<div class="sec-lbl">Reading</div>
+        <div class="task" onclick="openReading(${w.id})" style="cursor:pointer;">
+          <div class="task-check" style="background:transparent;border-color:var(--green);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:14px;">📚</div>
+          <div class="task-body">
+            <div class="task-name">Required Reading — Week ${w.id}</div>
+            <div class="task-meta"><span class="pill pill-time">${DBC_READINGS[w.id].length} article${DBC_READINGS[w.id].length>1?'s':''}</span></div>
+          </div>
+        </div>`;
+    }
+
     const pct=wTotal>0?Math.round(wDone/wTotal*100):0;
     const isOpen=openWeeks.has(w.id);
     const div=document.createElement('div');div.className='week';
@@ -1622,6 +1676,31 @@ function render(){
   updateStats();
 }
 
+const DBC_AUDIO = {
+  1: 'https://drive.google.com/file/d/125Au5fYDrGs9tOasAtELsggIdjzNn0Dj/preview',
+  2: 'https://drive.google.com/file/d/1gfoffYCf1IPGiKrFdsa2BxaaSt_9O5Fr/preview',
+  3: 'https://drive.google.com/file/d/1IWSDoRfA3VcbMDP1FMM4MynvXu5G5Kdq/preview',
+  4: 'https://drive.google.com/file/d/1bDshp9E7a0bWIaGH0wvLOYgB7jsRdrRZ/preview',
+  5: 'https://drive.google.com/file/d/19hWcm4WHvmJ6tOJbcjXP4l9i7jpuA6ys/preview',
+  6: 'https://drive.google.com/file/d/1pkcjIeaRgLC8Thw3qfl7lMUxy_NYgs21/preview',
+  7: 'https://drive.google.com/file/d/1hrKJYIFysdfqkllonPZ2iFMAD7CBhFoo/preview',
+  8: 'https://drive.google.com/file/d/1M6B0_Bk0CchaU8hekk74ewDxDfLw0d3h/preview',
+  9: 'https://drive.google.com/file/d/1tWysz7Zdgb-h60jFopXiCTQBjxV9Dk60/preview',
+  10: 'https://drive.google.com/file/d/1MGXsINC0o11E_YDMcAPBFxCvGlavLXwn/preview',
+  11: 'https://drive.google.com/file/d/1Ta638fIbg7_T7pU5atYuIQ64bGGOrkH-/preview',
+  12: 'https://drive.google.com/file/d/1RbvTuHi9qK11mUqFgzxyde-NXHBnvKLo/preview',
+  13: 'https://drive.google.com/file/d/17NbgXOj7hAWa5c-O-4OxQ1gJM1YYOLv2/preview',
+  14: 'https://drive.google.com/file/d/1smFYWKyfq2-kn639VCWATEbgGYw5SeUs/preview',
+  15: 'https://drive.google.com/file/d/1cB5bftyWQKKX2U9tGeQ2KmrcWk3k-ut6/preview',
+  16: 'https://drive.google.com/file/d/15_5rXkRHQ_wuprsTjExdjmnvL_qb-_HK/preview',
+  17: 'https://drive.google.com/file/d/1zJynVlDC_0G4RG3RnM4sAucnNppCzM93/preview',
+  18: 'https://drive.google.com/file/d/1kEXWlqaQF1AOd_wKSaePG2ghgOdSHQmj/preview',
+  19: 'https://drive.google.com/file/d/16mn6OwPfIOzP1hOzlXGcd76IIwqgRI2D/preview',
+  20: 'https://drive.google.com/file/d/1orCA9Wdhuk3E0Odum0Ed4ygMzojhISFP/preview',
+  21: 'https://drive.google.com/file/d/12tWlLWEobs3g_d6T1_iZQHKdwOn9IZk_/preview',
+  22: 'https://drive.google.com/file/d/1fyDBYKXOXygy0WJieMIcobcyfZcuFgyC/preview',
+};
+
 // ── Course switching ───────────────────────────────────────
 function switchCourse(course, btn){
   if(currentCourse === course) return;
@@ -1638,7 +1717,7 @@ function switchCourse(course, btn){
   } else {
     DATA = DBC_DATA;
     NOTEBOOK = DBC_NOTEBOOK;
-    AUDIO = {};
+    AUDIO = DBC_AUDIO;
     document.getElementById('course-title').textContent = 'Dynamics of Biblical Change';
     document.getElementById('course-subtitle').textContent = 'CCEF Biblical Counseling · 10 Weeks';
   }
@@ -3867,6 +3946,270 @@ const DBC_LEC_KEYS = {
   24: "Lecture 22: Living with Personal Integrity, Part 2",
 };
 
+// ── DBC Required Reading: Week-by-week articles ──────────────
+const DBC_READINGS = {
+  1: [
+    {
+      title: "Suffering and Psalm 119",
+      author: "David Powlison",
+      thesis: "Psalm 119 is not a moralistic call to Bible study but the most extensive I-to-You conversation in the Bible — honest prayer that emerges when real suffering and real sin meet the real God.",
+      summary: "Most readers think Psalm 119 is long, repetitive, and about 'getting into the Word.' Powlison shows that the psalm's most frequent words are not terms for Scripture but first- and second-person pronouns — I, me, my, You, Your. It is personal prayer, not a topic. Four strands weave through every section: bold assertions about who God is, honest admission of struggle with both sin and suffering, blunt requests for help, and fierce statements of committed faith. The psalm teaches that real honesty before God — not stoic self-control, not raw unfiltered venting — is the path out of both despair and self-deception.",
+      points: [
+        "Psalm 119 is personal prayer, not a topic — I-to-You language outnumbers references to 'the Word' roughly four to one.",
+        "Four strands run through the whole psalm: 'You are/say/do,' 'I am facing a struggle with,' 'I need You to,' and 'I am committed to.'",
+        "The psalmist faces dual evil — sin within and suffering from without — and brings both honestly into his prayer.",
+        "True honesty before God is different from either denial (stoicism) or raw unfiltered self-expression (which is still godless if it doesn't reckon with God).",
+        "The center of the psalm (vv. 81-92) marks the lowest point of distress, followed immediately by a turn toward unshakable trust in God's faithfulness.",
+        "Application: even something as small as a sleepless night becomes an opportunity to practice the psalm's honesty rather than spiraling into anxious rumination.",
+      ],
+      takeaways: [
+        "Don't reduce Psalm 119 to 'a psalm about loving the Bible' — read it as a model for honest, personal prayer.",
+        "Notice both sin and suffering when you pray; the psalm refuses to separate the two.",
+        "Use the psalm's pattern — affirm who God is, name your struggle, ask specifically, declare your commitment — as a template for your own prayers.",
+      ],
+    },
+    {
+      title: "Think Globally, Act Locally",
+      author: "David Powlison",
+      thesis: "Wise ministry connects one bit of Scripture to one bit of a person's actual life — you can't apply the whole Bible at once, and people change in specific scenes, not generalities.",
+      summary: "Powlison names a universal counseling problem: Scripture is alive and relevant, but the person in front of you is a tangled mess, and truth seems to bounce off without sticking. His proposed approach is simple but powerful — 'think globally, act locally.' Know the big picture of both Scripture and the person, but then bring one specific truth to bear on one specific struggle. He illustrates this with 'Teri,' a woman ruled by fear of man, showing how a single passage (Hebrews 13:5-6) applied to one concrete workplace situation produced real, lasting change that then rippled into her other relationships.",
+      points: [
+        "There are two counselors in every conversation, and the counselee often knows their own story (and how to mislead you) better than you do.",
+        "A 'timely passage' does three things: it orients you within your current struggle, brings Christ's grace into the moment, and invites a specific change.",
+        "General biblical truths ('fear of man is sin') rarely produce change on their own — change happens in specific scenes, in real decisions.",
+        "Choose the smallest, most workable 'laboratory' of change first — for Teri, this was a single recurring workplace scenario, not her whole family history.",
+        "Apply this principle to yourself first: live your own message before giving it to others.",
+      ],
+      takeaways: [
+        "When counseling or self-examining, resist the urge to address everything at once — find the one bit of life and the one bit of Bible that fit together right now.",
+        "Look for the smallest, most repeatable scene where a big pattern shows up — change there ripples outward.",
+        "A verse 'works' not because it's the only right one, but because you know it from the inside and it fits the person's actual struggle.",
+      ],
+    },
+  ],
+  2: [
+    {
+      title: "Reading the Bible for Personal Application",
+      author: "David Powlison",
+      thesis: "The Bible was written to others but speaks to you, and is about God yet draws you in — wise personal application means knowing which passages apply directly and which apply by extension and analogy.",
+      summary: "Powlison addresses the puzzle of how an ancient text written to other people becomes personally relevant. Some passages (psalms, proverbs, core promises) are written in general terms specifically so any reader can fill in their own details — these apply directly. Other passages (genealogies, ancient laws, narratives about other people) apply indirectly, by extension — they teach you something true about God and life even though they aren't 'about you.' He shows that even a genealogy or a psalm written by David about a king can become genuinely yours once you see how it points to Christ and how you are included in his story.",
+      points: [
+        "Direct application: passages like Psalm 23 or Philippians 4:6 generalize on purpose, leaving blanks for your specific troubles and needs to fill in.",
+        "Indirect application: passages like genealogies or Old Testament histories don't speak directly to you, but teach truths by extension — God keeps his promises, families matter to him, and so on.",
+        "Even a psalm 'about the king' (like Psalm 21) becomes yours: first as fulfilled in Christ, then as you participate in Christ's victory alongside other believers, then finally as your own exultant experience.",
+        "Wise application starts by identifying the passage that has already most changed your life, and asking why — that reveals the pattern for applying other texts.",
+      ],
+      takeaways: [
+        "Don't force every passage to be 'directly about you' — that distorts Scripture into a private message system.",
+        "Look for how a 'distant' passage still teaches something true about God's character and purposes, even when it isn't a direct promise to you.",
+        "Trace how Christ fulfills a passage first, then ask how you are included in his fulfillment of it.",
+      ],
+    },
+    {
+      title: "How Does Scripture Change You?",
+      author: "David Powlison",
+      thesis: "Real change happens through a triangulation of situation, personal struggle, and the living God who speaks through a specific passage of Scripture — not through generic exhortations to 'just' do something.",
+      summary: "Powlison tells two real stories — Charles, sinned against by a friend's betrayal, and Charlotte, struggling with longstanding fear of man — to show how Scripture actually changes people. In both cases, a specific passage (Psalm 119:86 for Charles, Isaiah 51 for Charlotte) met a specific struggle and produced a specific, ongoing change. He contrasts this rich, textured process with shallow 'Just ___' pastoral advice ('Just trust God,' 'Just get into a small group') that reduces the complexity of real transformation to a slogan.",
+      points: [
+        "Ethical transformation involves three things meeting together: an external situation, an internal struggle, and the active intervention of the living God through his Word.",
+        "Charles's change was linear and specific: sinned against, tempted to bitterness, met by Psalm 119:86, leading to ongoing forgiveness in process.",
+        "Charlotte's change was more atmospheric: longstanding fear of man met by Isaiah 51's juxtaposition of God's vastness and intimacy, producing new freedom to speak up.",
+        "Change is not 'one and done' — both stories show continuing struggle, course correction, and growth over time, not instant perfection.",
+        "Shallow advice ('Just remember God's sovereignty,' 'Just repent of bitterness') fails because it skips the textured, personal triangulation that real change requires.",
+      ],
+      takeaways: [
+        "When you want to change, look for the specific situation and your specific internal struggle — then find the specific Scripture that meets exactly that.",
+        "Expect change to be a process with course corrections, not a single dramatic fix.",
+        "Be suspicious of 'Just ___' advice, whether you're giving it or receiving it — real change is more textured than a slogan.",
+      ],
+    },
+    {
+      title: "Why Do We Pray?",
+      author: "David Powlison",
+      thesis: "We pray because we need to — prayer is the honest communication of a spiritually needy person with the God who hears, and it reveals what we actually believe about our need for him.",
+      summary: "Powlison asks why we pray and answers simply: because we need to, the way we need to breathe. He catalogs the many ways prayer goes wrong (vague, superstitious, a wish-list, a religious habit) and contrasts these with prayer that flows from honest need. He observes that most professional counselors never pray with their clients — revealing a belief that human insight and expertise are sufficient, with no need for forgiveness, hope, or refuge from outside ourselves. He then gives three practical tips: understand that faith has two moods (minor key need and major key gratitude), be specific, and talk straight to God in plain language rather than vague religious phrases.",
+      points: [
+        "Ways prayer goes wrong: vague and confusing, a wish list, superstitious, a mere religious habit, a mood-altering mantra, a reflex, boilerplate phrases.",
+        "Whether or not you pray reveals what you believe about your own sufficiency — not praying implicitly says 'my expertise and care are enough.'",
+        "We need things only God can provide: wisdom, power to endure suffering, courage, refuge, forgiveness, his presence, provision, hope, and indestructible friendship.",
+        "Tip 1: Faith has two moods — minor key (need, sorrow, confession) and major key (joy, confidence, gratitude). Most of the Psalms move from minor to major across the whole book.",
+        "Tip 2: Be specific — the Psalms are written in general terms precisely so you can fill them with your own life's details.",
+        "Tip 3: Talk straight to God — wrestle a verse into plain, straightforward English rather than leaving it in unfamiliar religious phrasing.",
+      ],
+      takeaways: [
+        "Notice whether your own counseling, caregiving, or daily life operates as if you don't need help from outside yourself.",
+        "When you pray, include both need (minor key) and gratitude (major key) — don't get stuck in only one mode.",
+        "Practice turning a Bible verse into your own plain words as a way of making it a real prayer rather than a recited phrase.",
+      ],
+    },
+  ],
+  4: [
+    {
+      title: "How Do You Counsel Non-Christians?",
+      author: "J. Alasdair Groves",
+      thesis: "Jesus himself demonstrates how to counsel non-Christians — there is no single formula, but a consistent goal: love oriented to the gospel, flexible enough to meet each person where they actually are.",
+      summary: "Groves answers one of the most common questions biblical counseling students ask: how can you counsel someone who doesn't accept Scripture's authority? He shows that Jesus engaged unbelievers with remarkable variety — asking the woman at the well for help rather than lecturing her, simply showing Zacchaeus unearned kindness, answering Nicodemus's sincere question directly, giving the rich young ruler a pointed 'homework assignment,' and confronting hostile Pharisees with blunt language. There is no formula, but in every case Jesus pursues the person's ultimate good and makes the gospel's relevance concrete to their actual situation, not abstract or generic.",
+      points: [
+        "Jesus' approach to unbelievers varies dramatically by person and situation — there is no three-step formula for evangelistic counseling.",
+        "With the woman at the well, Jesus asks her for help, reversing the usual helper/helped dynamic and meeting her where she is.",
+        "With Zacchaeus, simple unearned kindness (a dinner invitation) moves him to radical repentance and restitution.",
+        "With Nicodemus, Jesus answers his sincere question directly rather than deflecting.",
+        "With the rich young ruler, Jesus gives a pointed 'homework assignment' that exposes the gap between his professed and functional theology.",
+        "With hostile Pharisees, Jesus uses blunt, vivid language to shock them out of self-righteous blindness.",
+        "Across all examples, the same core themes recur: ungodly loyalties, how we treat others, the meaning of suffering, the call to change, and the search for reliable hope.",
+      ],
+      takeaways: [
+        "Don't expect or look for a single right technique for counseling non-Christians — follow Jesus' example of flexible, person-specific engagement.",
+        "Ask sincere questions directly; don't deflect curiosity with religious cliché.",
+        "Look for the gap between someone's stated beliefs and their functional, lived-out beliefs — that gap is often the doorway to the gospel's relevance.",
+      ],
+    },
+  ],
+  5: [
+    {
+      title: "'Peace, Be Still': Learning Psalm 131 by Heart",
+      author: "David Powlison",
+      thesis: "Inner composure is not detachment, indifference, or stoicism — it is a learned, relational humility that comes only through trusting God rather than chasing impossible things.",
+      summary: "Powlison walks through Psalm 131's three short verses, showing that the quiet inner life it describes is achieved, not natural — and achieved only in relationship with God. The 'noise' inside us (anxiety, ambition, irritation, despair) comes from a proud heart pursuing things 'too great and too difficult' for us. The psalm's image of a weaned child resting peacefully on its mother (rather than a hungry infant frantically rooting for milk) captures the difference between a heart still demanding and a heart that has learned contentment. True composure is found only by hoping in the Lord — not by lowering expectations or detaching from life's pressures.",
+      points: [
+        "Psalm 131 is 'holy eavesdropping' — we overhear someone who has already learned composure, inviting us to learn it too.",
+        "This composure is NOT stoic detachment, low expectations, or retreat from life — both David and Jesus (who fully lived this psalm) were active kingdom-builders amid real pressure.",
+        "The 'noise' inside us comes from pride: self-trust, looking down on others, and chasing things beyond our control.",
+        "Composure is learned in relationship, not achieved by sheer willpower — 'you do not wrestle yourself down by doing penance... you need the invasion of the Redeemer.'",
+        "The weaned child metaphor: a nursing infant frantically demands; a weaned child rests quietly on its mother. Has your soul been weaned from its frantic demands?",
+        "The whole psalm's hope rests on one final command: 'hope in the LORD' — not in achievement, control, or approval.",
+      ],
+      takeaways: [
+        "Identify your own 'ladders to nowhere' — the achievements, acquisitions, or approval you chase that produce inner noise.",
+        "Recognize that quieting your soul is not a technique you perform but a relationship you grow into with Christ.",
+        "Memorize Psalm 131 — its brevity makes it usable in moments of anxiety, before sleep, or before counseling someone else.",
+      ],
+    },
+    {
+      title: "Revisiting Idols of the Heart and Vanity Fair",
+      author: "David Powlison",
+      thesis: "Sin is more than behavior — it is animated by an interlocking trio of the flesh (inner desire), the world (situational pressure), and the devil (active deception), and seeing this clearly should drive us toward Christ, not toward obsessive self-analysis.",
+      summary: "In this retrospective on his classic 1991 article, Powlison reflects on how 'Idols of the Heart and Vanity Fair' holds up two decades later. The core insight remains: our sinful behavior never arises in a vacuum but is shaped by inward desire (the flesh), outward social pressure (the world/'Vanity Fair'), and active spiritual deception (the devil). He clarifies a common misreading — the article is not an invitation to obsessive 'idol hunting' in yourself or others. True self-knowledge always leads outward, toward the God who knows us thoroughly and loves us anyway, not into endless introspective spirals.",
+      points: [
+        "Sin is more than behavior: the flesh, the world, and the devil cooperate to animate even small sins like grumbling or complaining.",
+        "The flesh is the personal/psychological dimension — inward lusting and self-centered desire.",
+        "The world ('Vanity Fair') is the situational dimension — cultural voices, peer pressure, and social values that bait our desires.",
+        "The devil is the spiritual dimension — an active enemy who lies, tempts, and enslaves.",
+        "Powlison clarifies: this analysis is not meant to fuel obsessive self-analysis or judgmental mind-reading of others' motives.",
+        "Naming the specific lust, fear, or felt-need behind a sin makes repentance more intelligent and magnifies God's mercy, because you see your need more clearly.",
+        "True self-knowledge always draws you OUT of yourself toward God, not deeper into introspective self-fascination.",
+      ],
+      takeaways: [
+        "When you notice a recurring sin pattern, ask what desire (flesh), what social pressure (world), and what lie (devil) are cooperating in it.",
+        "Resist using this kind of analysis as a tool for judging others' hidden motives — use it for your own honest repentance.",
+        "Let self-knowledge lead you toward Christ's mercy, not into an endless inward spiral.",
+      ],
+    },
+    {
+      title: "X-ray Questions: Drawing Out the Whys and Wherefores of Human Behavior",
+      author: "David Powlison",
+      thesis: "Every theory of human motivation ultimately answers the question 'why do people do what they do?' — and Scripture answers it relationally: people are always loving, trusting, fearing, or serving someone or something, whether the true God or a functional substitute.",
+      summary: "This widely-used article provides 35 'X-ray questions' designed to help a counselor or self-examiner identify the functional gods that actually rule a person's heart in a given moment, as distinct from the God they profess to worship. Questions range from 'What do you love? Hate?' and 'What do you fear?' to 'Whose approval do you need?' and 'What would make you feel rich or secure?' Powlison emphasizes that these questions explore the vertical (Godward) dimension that drives the horizontal (behavioral) dimension, and that real ministry must address both root (motive) and fruit (behavior) — Scripture never separates the two.",
+      points: [
+        "A 'functional god' is whatever actually controls your thoughts, actions, and emotions in a given moment — often different from your professed God.",
+        "Sample questions include: What do you love/fear/seek/trust? Where do you find refuge? Whose approval do you need? What would make you feel secure?",
+        "The questions can be used 'microscopically' (one incident) or 'panoramically' (a recurring life pattern) — both views complement each other.",
+        "Always ask the questions existentially first — don't jump to the 'right Christian answer' before honestly identifying the actual ruling desire.",
+        "Behavior and motive must both be addressed: the first great commandment (love God) addresses the root; the second (love neighbor) addresses the fruit.",
+        "A case example: a man's habitual apologizing for lateness revealed a deeper pattern of fear of man — people too big, God too small (Prov 29:25).",
+      ],
+      takeaways: [
+        "Use a handful of these questions on yourself regularly — they cut beneath behavior to expose what's actually ruling your heart.",
+        "When counseling, listen for patterns across many small incidents rather than fixating on a single behavior.",
+        "Remember that the goal of exposing a functional idol is always to lead to Christ's grace, not merely diagnostic insight for its own sake.",
+      ],
+    },
+  ],
+  8: [
+    {
+      title: "The Constructive Displeasure of Mercy",
+      author: "David Powlison",
+      thesis: "The true opposite of sinful anger is not indifference or niceness, but a fourth 'gear' — constructive displeasure that confronts real wrong while remaining patient, forgiving, and oriented toward redemption.",
+      summary: "Powlison maps human reactions on a 'Richter scale' from -10 (explosive wrath) to +10 (ecstatic delight), then identifies three so-called opposites of anger: indifference (which can mask cynicism or cultivated stoicism), pleasure (simple approval), and a third, more complex option — the constructive displeasure of mercy. This 'fourth gear' says 'I don't like that; I care; and I will act in constructive love.' He illustrates this through Winston Churchill's firm but relationship-preserving confrontation of Stalin's ambassador, and through ordinary parents, children, and spouses who confront real wrong without becoming either doormats or tyrants. This is what Jesus himself does — patient, forgiving, generous, and yet unflinchingly honest about what is wrong.",
+      points: [
+        "Most people operate with only three 'gears': anger (reverse), indifference (neutral), and pleasure (forward). The constructive displeasure of mercy is a rare 'fourth gear.'",
+        "Indifference is not always virtuous — it can mask cynicism (tired of caring) or cultivated stoicism (detachment dressed up as wisdom).",
+        "Constructive displeasure says 'I don't like that' (genuine moral disapproval) while simultaneously pursuing the good of the wrongdoer through patience and forgiveness.",
+        "Churchill's rebuke of the Soviet ambassador ('you of all people have no right to make reproaches to us') is a real-world example: firm anger that strengthened rather than ruptured the relationship.",
+        "This kind of love is not 'fair' by ordinary standards — it treats the wrongdoer the way God treats us: 'He does not treat us as our sins deserve' (Ps 103:10).",
+        "This is exactly how the Gospels portray Jesus — patient, forgiving, practically generous, and pointedly confrontational all at once.",
+      ],
+      takeaways: [
+        "When you feel angry at real wrong, ask whether you are sliding into destructive wrath, collapsing into passive indifference, or being called to the harder 'fourth gear' of constructive confrontation.",
+        "Notice that constructive anger and ongoing patience/forgiveness are not contradictory — they belong together.",
+        "Look for models (like Churchill, or parents of a wayward teen) who combine firm truth-telling with sustained mercy.",
+      ],
+    },
+    {
+      title: "A Personal Liturgy of Confession",
+      author: "David Powlison",
+      thesis: "Designing a personalized liturgy of confession — walking through the General Confession's classic structure and filling it with your own specific failure — leads honestly into God's specific mercy rather than vague guilt or vague reassurance.",
+      summary: "Using the example of a woman who has had an abortion, Powlison shows how to adapt the Book of Common Prayer's General Confession into a deeply personal prayer. Each phrase of the historic liturgy ('I have erred and strayed... I have followed too much the devices and desires of my own heart...') is explained and then opened up with blank space for the reader to insert their own specific failure. The second half of the liturgy moves into God's specific promises (Deuteronomy 31, Numbers 6, Exodus 34) and culminates in the truth that all these promises are 'Yes' in Jesus Christ. The structure can be adapted to any struggle — anger, lust, gossip, laziness — not just the example given.",
+      points: [
+        "The liturgy can be adapted to any specific struggle: temper, bitterness, sexual immorality, gluttony, gossip, obsessive worry — not just the abortion example used.",
+        "Praying out loud (not just thinking) helps you remember you are actually talking to someone who listens.",
+        "The liturgy walks through naming God ('Almighty and most merciful Father'), confessing specific failure, naming which of God's laws were broken, and then receiving specific promises.",
+        "Key promises cited: 'I will never leave you or forsake you' (Deut 31:6), the Numbers 6 blessing, and Exodus 34:6-7's description of God as merciful, gracious, slow to anger.",
+        "The pivot phrase 'for Your name's sake, pardon my iniquity' means asking God to remember his own character rather than your worthiness.",
+        "All these promises culminate in Christ: 'All the promises of God are YES in Jesus Christ' — your hope rests in a Person, not a feeling or an idea.",
+        "Confession is not meant to be done alone — James 5:16 calls believers to confess to one another, and to partake of the Lord's Supper as a tangible reminder that mercy is real.",
+      ],
+      takeaways: [
+        "Try writing your own version of this liturgy for a specific struggle in your own life, filling in the blanks honestly.",
+        "Notice the shape of the prayer: honest confession first, then specific promises, then a request for power to change, then thanksgiving.",
+        "Remember that confession is meant to be both personal and communal — don't carry it entirely alone.",
+      ],
+    },
+    {
+      title: "Familial Counseling: The Paradigm for Counselor-Counselee Relationships in 1 Thessalonians 5",
+      author: "David Powlison",
+      thesis: "1 Thessalonians 5:14 portrays counseling relationships not as expert-client transactions but as a family — older siblings caring for younger ones with patient, adaptable love suited to each one's particular need.",
+      summary: "Powlison contrasts the biblical 'familial' paradigm for counseling with nine secular models (science, animal training, friendship, coaching, medicine, education, technology, etc.), arguing that 1 Thessalonians 5:14 ('admonish the unruly, encourage the fainthearted, help the weak, be patient with everyone') describes something different: freely-given, long-term sibling love rather than a fee-for-service expert relationship. Different people need different kinds of help — the willful need admonishment, the discouraged need encouragement, the weak need practical help — and most counselors have natural tendencies toward only one of these modes. The call is to grow in all three, becoming a more well-rounded 'sibling' to those in our care.",
+      points: [
+        "1 Thessalonians 5:14 portrays believers as a family: God is Father, Paul and his companions act like an older sibling/parent-delegate, and those counseled are younger siblings needing different kinds of help.",
+        "This contrasts with secular models built on other metaphors: counseling as science (archeologist of the psyche), as animal training (behavior modification), as medicine (diagnosis and treatment), and so on.",
+        "Three types of people need three different responses: the unruly need admonishment, the fainthearted need encouragement, the weak need patient help — and most people are some mix of all three at different times.",
+        "Counselors have natural tendencies: confronters excel at admonishing but may neglect comfort; comforters excel at encouraging but may avoid necessary confrontation; helpers excel at practical care but may not address heart issues.",
+        "Whole churches and ministries can have the same imbalance — majoring in one strength while neglecting the others.",
+        "The call of 5:14 is to grow beyond your natural strength, becoming patient and skilled in all three modes of care.",
+      ],
+      takeaways: [
+        "Identify your own natural tendency — are you a natural confronter, comforter, or practical helper? Where do you need to grow?",
+        "When you notice you're impatient with someone, ask whether it's because their need falls outside your comfort zone (e.g., a confronter growing impatient with someone simply weak and needing practical help).",
+        "Think about your church or ministry community: does it lean heavily toward one of these three modes while neglecting the others?",
+      ],
+    },
+  ],
+  9: [
+    {
+      title: "God Is Making His People Good: Counseling and Virtue Formation",
+      author: "Michael Gembola",
+      thesis: "Christian counseling should be oriented not only around diagnosing sin but around the positive, hopeful reality that God is actively making his people good — cultivating real virtue, not just managing problems.",
+      summary: "Gembola draws on positive psychology's critique of problem-centered counseling (which can leave people feeling like nothing more than 'a creature born to have problems') and applies a parallel critique to Christian counseling that over-focuses on sin and idolatry. He clarifies that David Powlison's model was never meant to be reduced to 'insight into sin' — Powlison himself wanted a comprehensive view of the Christian life as saint, sufferer, and sinner together. Gembola argues for recovering a vision of virtue formation: God is not only forgiving us but truly making us good, and counseling done well should leave people feeling dignified, hopeful, and oriented toward becoming like Christ — not merely diagnosed.",
+      points: [
+        "Problem-centered counseling (whether secular or Christian) risks reducing the human being to 'a creature born to have problems,' missing the positive goal of flourishing.",
+        "The Christian analogue to psychology's focus on pathology is an overemphasis on sin — true and important, but incomplete on its own.",
+        "David Powlison's own model was never meant to center on 'insight into sin and idolatry' alone — his 'Three Trees' framework includes situational pressure, heart motive, AND outcomes/fruit together.",
+        "Every believer is simultaneously saint, sufferer, and sinner — all three identities matter, and over-focusing on 'sinner' skews the picture.",
+        "True virtue formation is always grace-dependent: 'Work out your salvation... for it is God who works in you' (Phil 2:12-13) — effort and grace are not opposites.",
+        "The goal of virtue formation is never self-improvement as an end in itself — it remains relational and worship-oriented: love of God and neighbor, not a polished, admirable self.",
+        "Powlison's own preferred image: 'love to the loveless shown, that they might lovely be' — God doesn't just forgive the unlovely, he makes them lovely.",
+      ],
+      takeaways: [
+        "When counseling or examining your own growth, ask not only 'what's wrong?' but 'what good is God cultivating here?'",
+        "Remember that you are simultaneously saint, sufferer, and sinner — don't let any one identity dominate how you see yourself or others.",
+        "Watch for the danger of virtue formation becoming self-focused; keep the goal fixed on loving God and others, not on becoming an admirable self.",
+      ],
+    },
+  ],
+};
+
+
 // ── Boot ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function(){
   const urlParams = new URLSearchParams(window.location.search);
@@ -3876,7 +4219,7 @@ document.addEventListener('DOMContentLoaded', function(){
   if(currentCourse === 'dbc'){
     DATA = DBC_DATA;
     NOTEBOOK = DBC_NOTEBOOK;
-    AUDIO = {};
+    AUDIO = DBC_AUDIO;
     document.getElementById('course-title').textContent = 'Dynamics of Biblical Change';
     document.getElementById('course-subtitle').textContent = 'CCEF Biblical Counseling · 10 Weeks';
     document.getElementById('btn-hr').classList.remove('active');
