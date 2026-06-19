@@ -83,7 +83,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .notes-link{font-size:13px;color:var(--green);font-weight:500;padding:6px 0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:rgba(29,158,117,0.15)}
 .notes-link:active{opacity:0.5}
 .audio-link{color:#185FA5}
-@media(prefers-color-scheme:dark){.notes-link{color:#5DCAA5}.audio-link{color:#85B7EB}}
+.draft-link{color:#B5651D}
+@media(prefers-color-scheme:dark){.notes-link{color:#5DCAA5}.audio-link{color:#85B7EB}.draft-link{color:#E0A458}}
 
 /* Action buttons on task */
 .task-btn{font-size:13px;padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;gap:4px;min-height:36px;position:relative;z-index:5}
@@ -136,6 +137,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 @media(prefers-color-scheme:dark){.notes-tab{background:#2a2a27;color:#9A9A96;}.notes-tab.active{background:var(--green);color:#ffffff !important;}}
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
 </head>
 <body>
 
@@ -187,6 +189,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="notes-page-title" id="reading-page-title">Reading</div>
   </div>
   <div class="notes-page-body" id="reading-page-body"></div>
+</div>
+
+<div class="notes-page" id="draft-page">
+  <div class="notes-page-header">
+    <span class="notes-back" onclick="closeDraft()">← Back</span>
+    <div class="notes-page-title" id="draft-page-title">Draft</div>
+  </div>
+  <div class="notes-page-body" id="draft-page-body">
+    <textarea id="draft-textarea" class="notes-area" style="min-height:50vh;font-size:16px;line-height:1.6;" placeholder="Start writing here. Your draft saves automatically and syncs across your devices." oninput="saveDraft(this.value)"></textarea>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+      <button class="filter-btn" style="background:var(--green);color:#fff;border:none;" onclick="exportDraftToWord()">⬇️ Export to Word</button>
+      <span id="draft-word-count" style="font-size:13px;color:var(--muted);align-self:center;"></span>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -508,8 +524,8 @@ let DATA=[
     {n:"Any 1 podcast at CCEF.org",t:30},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Reading Reflections, Week 1",t:30,due:"Jun 27",pts:10},
-    {n:"Self-Assessment",t:45,due:"Jun 27",pts:100},
+    {n:"Reading Reflections, Week 1",t:30,due:"Jun 27",pts:10,draft:true},
+    {n:"Self-Assessment",t:45,due:"Jun 27",pts:100,draft:true},
   ]},
   {label:"Attend",type:"attend",tasks:[
     {n:"Live Engagement 1 with OI",t:60,due:"Jun 24 8pm EST"},
@@ -528,10 +544,10 @@ let DATA=[
     {n:"Yalom, The Gift of Therapy, chs. 1–10",t:60},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Yalom Reading Reflections, Week 2",t:30,due:"Jul 4",pts:10},
-    {n:"Extended Conversation, Week 2 Prompt",t:30,due:"Jul 4"},
-    {n:"Ephesians Reflection & \"Personal\" Paper",t:90,due:"Jul 4",pts:100},
-    {n:"Small Group 1 (Prompts & Questions)",t:20,due:"Jul 4"},
+    {n:"Yalom Reading Reflections, Week 2",t:30,due:"Jul 4",pts:10,draft:true},
+    {n:"Extended Conversation, Week 2 Prompt",t:30,due:"Jul 4",draft:true},
+    {n:"Ephesians Reflection & \"Personal\" Paper",t:90,due:"Jul 4",pts:100,draft:true},
+    {n:"Small Group 1 (Prompts & Questions)",t:20,due:"Jul 4",draft:true},
   ]},
   {label:"Attend",type:"attend",tasks:[
     {n:"Small Group 1 Attendance",t:60,due:"Jul 4",pts:100},
@@ -551,9 +567,9 @@ let DATA=[
     {n:"Miller, The Heart of a Servant Leader (assigned sections)",t:45},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Yalom Reading Reflections, Week 3",t:30,due:"Jul 11",pts:10},
-    {n:"Extended Conversation, Week 3 Prompt",t:30,due:"Jul 11"},
-    {n:"Reflection Paper 1",t:90,due:"Jul 11",pts:100},
+    {n:"Yalom Reading Reflections, Week 3",t:30,due:"Jul 11",pts:10,draft:true},
+    {n:"Extended Conversation, Week 3 Prompt",t:30,due:"Jul 11",draft:true},
+    {n:"Reflection Paper 1",t:90,due:"Jul 11",pts:100,draft:true},
   ]},
 ]},
 {id:4,title:"Week 4",dates:"July 13–18",sections:[
@@ -568,9 +584,9 @@ let DATA=[
     {n:"Yalom, The Gift of Therapy, chs. 21–30",t:60},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Yalom Reading Reflections, Week 4",t:30,due:"Jul 18",pts:10},
-    {n:"Extended Conversation, Week 4 Prompt",t:30,due:"Jul 18"},
-    {n:"Small Group 2 (Prompts & Questions)",t:20,due:"Jul 18"},
+    {n:"Yalom Reading Reflections, Week 4",t:30,due:"Jul 18",pts:10,draft:true},
+    {n:"Extended Conversation, Week 4 Prompt",t:30,due:"Jul 18",draft:true},
+    {n:"Small Group 2 (Prompts & Questions)",t:20,due:"Jul 18",draft:true},
     {n:"Submit Questions for Live Engagement 2 (optional)",t:15,due:"Jul 18"},
   ]},
   {label:"Attend",type:"attend",tasks:[
@@ -590,9 +606,9 @@ let DATA=[
     {n:"Miller, The Heart of a Servant Leader (assigned sections)",t:45},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Yalom Reading Reflections, Week 5",t:30},
-    {n:"Extended Conversation, Week 5 Prompt",t:30},
-    {n:"Reflection Paper 2",t:90,pts:100},
+    {n:"Yalom Reading Reflections, Week 5",t:30,draft:true},
+    {n:"Extended Conversation, Week 5 Prompt",t:30,draft:true},
+    {n:"Reflection Paper 2",t:90,pts:100,draft:true},
   ]},
   {label:"Attend",type:"attend",tasks:[
     {n:"Live Engagement 2 with OI",t:60},
@@ -611,9 +627,9 @@ let DATA=[
     {n:"Yalom, The Gift of Therapy, chs. 41–50",t:60},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Yalom Reading Reflections, Week 6",t:30,due:"Aug 1",pts:10},
-    {n:"Extended Conversation, Week 6 Prompt",t:30,due:"Aug 1"},
-    {n:"Small Group 3 (Prompts & Questions)",t:20,due:"Aug 1"},
+    {n:"Yalom Reading Reflections, Week 6",t:30,due:"Aug 1",pts:10,draft:true},
+    {n:"Extended Conversation, Week 6 Prompt",t:30,due:"Aug 1",draft:true},
+    {n:"Small Group 3 (Prompts & Questions)",t:20,due:"Aug 1",draft:true},
   ]},
   {label:"Attend",type:"attend",tasks:[
     {n:"Small Group 3 Attendance",t:60,due:"Aug 1",pts:100},
@@ -632,9 +648,9 @@ let DATA=[
     {n:"Miller, The Heart of a Servant Leader (assigned sections)",t:45},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Yalom Reading Reflections, Week 7",t:30,due:"Aug 8",pts:10},
-    {n:"Extended Conversation, Week 7 Prompt",t:30,due:"Aug 8"},
-    {n:"Reflection Paper 3",t:90,due:"Aug 8",pts:100},
+    {n:"Yalom Reading Reflections, Week 7",t:30,due:"Aug 8",pts:10,draft:true},
+    {n:"Extended Conversation, Week 7 Prompt",t:30,due:"Aug 8",draft:true},
+    {n:"Reflection Paper 3",t:90,due:"Aug 8",pts:100,draft:true},
   ]},
 ]},
 {id:8,title:"Week 8",dates:"Aug 10–15",sections:[
@@ -648,9 +664,9 @@ let DATA=[
     {n:"Yalom, The Gift of Therapy, chs. 61–70",t:60},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Yalom Reading Reflections, Week 8",t:30,due:"Aug 15",pts:10},
-    {n:"Extended Conversation, Week 8 Prompt",t:30,due:"Aug 15"},
-    {n:"Small Group 4 (Prompts & Questions)",t:20,due:"Aug 15"},
+    {n:"Yalom Reading Reflections, Week 8",t:30,due:"Aug 15",pts:10,draft:true},
+    {n:"Extended Conversation, Week 8 Prompt",t:30,due:"Aug 15",draft:true},
+    {n:"Small Group 4 (Prompts & Questions)",t:20,due:"Aug 15",draft:true},
     {n:"Submit Questions for Live Engagement 3 (optional)",t:15,due:"Aug 15"},
   ]},
   {label:"Attend",type:"attend",tasks:[
@@ -668,8 +684,8 @@ let DATA=[
     {n:"Yalom, The Gift of Therapy, chs. 71–85",t:75},
   ]},
   {label:"Assignments",type:"complete",tasks:[
-    {n:"Yalom Reading Reflections, Week 9",t:30,due:"Aug 22",pts:10},
-    {n:"Extended Conversation, Week 9 Prompt",t:30,due:"Aug 22"},
+    {n:"Yalom Reading Reflections, Week 9",t:30,due:"Aug 22",pts:10,draft:true},
+    {n:"Extended Conversation, Week 9 Prompt",t:30,due:"Aug 22",draft:true},
   ]},
   {label:"Attend",type:"attend",tasks:[
     {n:"Live Engagement 3 with OI",t:60,due:"Aug 20 8pm EST"},
@@ -677,9 +693,9 @@ let DATA=[
 ]},
 {id:10,title:"Week 10",dates:"Aug 24–29",sections:[
   {label:"Final Assignments",type:"complete",tasks:[
-    {n:"Extended Conversation Partner Log",t:30,due:"Aug 29",pts:10},
-    {n:"Extended Conversation Partner Final Letter",t:45,due:"Aug 29",pts:10},
-    {n:"Final Paper",t:180,due:"Aug 29",pts:100},
+    {n:"Extended Conversation Partner Log",t:30,due:"Aug 29",pts:10,draft:true},
+    {n:"Extended Conversation Partner Final Letter",t:45,due:"Aug 29",pts:10,draft:true},
+    {n:"Final Paper",t:180,due:"Aug 29",pts:100,draft:true},
     {n:"Complete Course Evaluation",t:15,due:"Aug 29"},
   ]},
 ]},
@@ -728,7 +744,7 @@ let AUDIO = {
 };
 
 // ── State ──────────────────────────────────────────────────
-let checked={}, notesData={}, filter='all', openWeeks=new Set([1]);
+let checked={}, notesData={}, draftsData={}, filter='all', openWeeks=new Set([1]);
 let syncTimer=null, panelLecNum=null;
 let currentCourse='hr';
 
@@ -736,11 +752,11 @@ let currentCourse='hr';
 function localLoad(){
   try{
     const d=localStorage.getItem(LOCAL_KEY);
-    if(d){const p=JSON.parse(d);checked=p.checked||{};notesData=p.notes||{};if(p.openWeeks)openWeeks=new Set(p.openWeeks);}
+    if(d){const p=JSON.parse(d);checked=p.checked||{};notesData=p.notes||{};draftsData=p.drafts||{};if(p.openWeeks)openWeeks=new Set(p.openWeeks);}
   }catch(e){}
 }
 function localSave(){
-  try{localStorage.setItem(LOCAL_KEY,JSON.stringify({checked,notes:notesData,openWeeks:[...openWeeks]}));}catch(e){}
+  try{localStorage.setItem(LOCAL_KEY,JSON.stringify({checked,notes:notesData,drafts:draftsData,openWeeks:[...openWeeks]}));}catch(e){}
 }
 
 // ── Sync dot ───────────────────────────────────────────────
@@ -749,7 +765,7 @@ function dot(s){document.getElementById('sync-dot').className='sync-dot '+(s||''
 // ── Supabase ───────────────────────────────────────────────
 async function dbFetch(){
   const rowId = currentCourse === 'hr' ? 'main' : 'dbc';
-  const r=await fetch(`${SUPABASE_URL}/rest/v1/progress?id=eq.${rowId}&select=checked,notes`,{
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/progress?id=eq.${rowId}&select=checked,notes,drafts`,{
     headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
   });
   if(!r.ok)throw new Error();
@@ -759,18 +775,18 @@ async function dbFetch(){
     await fetch(`${SUPABASE_URL}/rest/v1/progress`,{
       method:'POST',
       headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({id:rowId,checked:{},notes:{}})
+      body:JSON.stringify({id:rowId,checked:{},notes:{},drafts:{}})
     });
-    return {checked:{}, notes:{}};
+    return {checked:{}, notes:{}, drafts:{}};
   }
-  return {checked:rows[0]?.checked||{}, notes:rows[0]?.notes||{}};
+  return {checked:rows[0]?.checked||{}, notes:rows[0]?.notes||{}, drafts:rows[0]?.drafts||{}};
 }
-async function dbSave(checkedData, notesData){
+async function dbSave(checkedData, notesData, draftsDataArg){
   const rowId = currentCourse === 'hr' ? 'main' : 'dbc';
   const r=await fetch(`${SUPABASE_URL}/rest/v1/progress?id=eq.${rowId}`,{
     method:'PATCH',
     headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-    body:JSON.stringify({checked:checkedData,notes:notesData,updated_at:new Date().toISOString()})
+    body:JSON.stringify({checked:checkedData,notes:notesData,drafts:draftsDataArg!==undefined?draftsDataArg:draftsData,updated_at:new Date().toISOString()})
   });
   if(!r.ok)throw new Error();
 }
@@ -780,6 +796,7 @@ async function loadFromCloud(){
     const data=await dbFetch();
     checked=data.checked;
     notesData=data.notes;
+    draftsData=data.drafts||{};
     localSave();dot('ok');
   }
   catch(e){localLoad();dot('err');}
@@ -789,7 +806,7 @@ function scheduleSave(){
   clearTimeout(syncTimer);
   syncTimer=setTimeout(async()=>{
     dot('syncing');
-    try{await dbSave(checked,notesData);localSave();dot('ok');}
+    try{await dbSave(checked,notesData,draftsData);localSave();dot('ok');}
     catch(e){localSave();dot('err');}
   },800);
 }
@@ -1586,6 +1603,105 @@ function closeReading(){
   document.getElementById('reading-page').classList.remove('open');
 }
 
+// ── Draft / Assignment writing ──────────────────────────────
+let currentDraftId = null;
+let draftTimer = null;
+
+function openDraft(taskId, taskName){
+  currentDraftId = taskId;
+  document.getElementById('draft-page-title').textContent = taskName;
+  const ta = document.getElementById('draft-textarea');
+  ta.value = draftsData[taskId] || '';
+  updateWordCount(ta.value);
+  document.getElementById('draft-page').classList.add('open');
+  window.scrollTo(0,0);
+}
+
+function closeDraft(){
+  document.getElementById('draft-page').classList.remove('open');
+  currentDraftId = null;
+}
+
+function updateWordCount(text){
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('draft-word-count').textContent = text.trim() ? `${words} word${words===1?'':'s'}` : '';
+}
+
+function saveDraft(val){
+  if(!currentDraftId) return;
+  draftsData[currentDraftId] = val;
+  updateWordCount(val);
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(()=>{
+    localSave();
+    scheduleSave();
+  }, 600);
+}
+
+async function exportDraftToWord(){
+  const title = document.getElementById('draft-page-title').textContent;
+  const text = document.getElementById('draft-textarea').value;
+  if(!text.trim()){
+    alert('Your draft is empty — write something first!');
+    return;
+  }
+  if(typeof docx === 'undefined'){
+    alert('The Word export library failed to load. Check your internet connection and try again.');
+    return;
+  }
+  try{
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+    const paragraphs = [
+      new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        children: [new TextRun(title)],
+      }),
+      new Paragraph({ children: [new TextRun("")] }),
+    ];
+    const blocks = text.split(/\n\s*\n/);
+    blocks.forEach(block=>{
+      const lines = block.split('\n');
+      lines.forEach(line=>{
+        paragraphs.push(new Paragraph({ children: [new TextRun(line)] }));
+      });
+      paragraphs.push(new Paragraph({ children: [new TextRun("")] }));
+    });
+
+    const doc = new Document({
+      styles: {
+        default: { document: { run: { font: "Calibri", size: 24 } } },
+        paragraphStyles: [
+          { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+            run: { size: 32, bold: true, font: "Calibri" },
+            paragraph: { spacing: { before: 240, after: 240 }, outlineLevel: 0 } },
+        ]
+      },
+      sections: [{
+        properties: {
+          page: {
+            size: { width: 12240, height: 15840 },
+            margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
+          }
+        },
+        children: paragraphs
+      }]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeName = title.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '');
+    a.download = safeName + '.docx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }catch(e){
+    alert('Something went wrong creating the Word file: ' + e.message);
+  }
+}
+
 let noteTimer = null;
 function saveNote(lecNum, val){
   notesData['lec-'+lecNum] = val;
@@ -1631,6 +1747,10 @@ function render(){
         }
         if(task.lec && AUDIO[task.lec]){
           actions += `<a class="notes-link audio-link" href="${AUDIO[task.lec]}" target="_blank">▶ Play Audio</a>`;
+        }
+        if(task.draft){
+          const did=tid(w.id,si,ti);
+          actions += `<a class="notes-link draft-link" href="#" onclick="event.preventDefault();openDraft('${did}','${task.n.replace(/'/g,"\\'")}')">📝 Draft</a>`;
         }
 
         secHTML+=`<div class="task">
