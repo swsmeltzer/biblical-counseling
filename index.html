@@ -1685,9 +1685,22 @@ function openDraft(taskId, taskName){
   currentDraftId = taskId;
   document.getElementById('draft-page-title').textContent = taskName;
   const ta = document.getElementById('draft-textarea');
-  ta.value = draftsData[taskId] || '';
-  updateWordCount(ta.value);
+  const existing = draftsData[taskId] || '';
   renderAssignmentPrompt(taskName);
+  if(!existing.trim()){
+    const template = buildAssignmentTemplate(taskName);
+    if(template){
+      ta.value = template;
+      draftsData[taskId] = template;
+      localSave();
+      scheduleSave();
+    } else {
+      ta.value = '';
+    }
+  } else {
+    ta.value = existing;
+  }
+  updateWordCount(ta.value);
   document.getElementById('draft-page').classList.add('open');
   window.scrollTo(0,0);
 }
