@@ -1855,8 +1855,9 @@ function closeSummary(){
 }
 
 async function exportSummaryToWord(){
-  if(typeof docx === 'undefined'){
-    alert('The Word export library failed to load. Check your internet connection and try again.');
+  const ready = await ensureDocxLoaded();
+  if(!ready){
+    alert('The Word export library failed to load even after retrying. Check your internet connection and try again in a moment.');
     return;
   }
   const { lectureNotes, assignmentDrafts } = collectMyNotesAndDrafts();
@@ -2082,6 +2083,32 @@ function saveDraft(val){
   }, 600);
 }
 
+function loadScript(src){
+  return new Promise((resolve, reject)=>{
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = ()=>resolve();
+    s.onerror = ()=>reject(new Error('Failed to load '+src));
+    document.head.appendChild(s);
+  });
+}
+
+async function ensureDocxLoaded(){
+  if(typeof docx !== 'undefined') return true;
+  const sources = [
+    'https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js',
+    'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js',
+    'https://unpkg.com/docx@8.5.0/build/index.umd.js',
+  ];
+  for(const src of sources){
+    try{
+      await loadScript(src);
+      if(typeof docx !== 'undefined') return true;
+    }catch(e){ /* try next source */ }
+  }
+  return typeof docx !== 'undefined';
+}
+
 async function exportDraftToWord(){
   const title = document.getElementById('draft-page-title').textContent;
   const text = document.getElementById('draft-textarea').value;
@@ -2089,8 +2116,9 @@ async function exportDraftToWord(){
     alert('Your draft is empty — write something first!');
     return;
   }
-  if(typeof docx === 'undefined'){
-    alert('The Word export library failed to load. Check your internet connection and try again.');
+  const ready = await ensureDocxLoaded();
+  if(!ready){
+    alert('The Word export library failed to load even after retrying. Check your internet connection and try again in a moment.');
     return;
   }
   try{
