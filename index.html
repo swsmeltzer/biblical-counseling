@@ -246,6 +246,10 @@ if(localStorage.getItem(LOCK_STORAGE_KEY) === '1'){
   <button class="filter-btn" onclick="setFilter('remaining',this)">⏳ Remaining</button>
 </div>
 
+<div style="padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);">
+  <button class="filter-btn" onclick="openSummary()" style="width:100%;">📑 My Notes &amp; Drafts</button>
+</div>
+
 <div class="weeks" id="weeks"></div>
 
 <!-- Notes Full Screen Page -->
@@ -283,6 +287,20 @@ if(localStorage.getItem(LOCK_STORAGE_KEY) === '1'){
     <div class="notes-page-title">3 Trees &amp; 8 Questions</div>
   </div>
   <div class="notes-page-body" id="model-page-body"></div>
+</div>
+
+<div class="notes-page" id="summary-page">
+  <div class="notes-page-header">
+    <span class="notes-back" onclick="closeSummary()">← Back</span>
+    <div class="notes-page-title">My Notes &amp; Drafts</div>
+    <span class="font-size-toggle" onclick="toggleFontSizeBar(this)">Aa</span>
+  </div>
+  <div class="font-size-bar" id="font-size-bar-3">
+    <span class="font-size-label">A</span>
+    <input type="range" min="13" max="22" value="14" class="font-size-slider" oninput="setReadingFontSize(this.value)">
+    <span class="font-size-label" style="font-size:20px;">A</span>
+  </div>
+  <div class="notes-page-body" id="summary-page-body"></div>
 </div>
 
 <div class="notes-page" id="draft-page">
@@ -1674,6 +1692,9 @@ function openReading(weekId){
       html += `<div class="nb-section">`;
       html += `<div class="nb-section-heading">${escHtml(art.title)}</div>`;
       html += `<div class="nb-item" style="font-style:italic;color:var(--muted);margin-bottom:8px;">by ${escHtml(art.author)}</div>`;
+      if(art.url){
+        html += `<a href="${art.url}" target="_blank" rel="noopener" class="notes-link audio-link" style="display:inline-block;margin-bottom:10px;">🔗 Read full article on CCEF.org</a>`;
+      }
       html += `<div class="nb-item scripture">${escHtml(art.thesis)}</div>`;
       html += `<div class="nb-item" style="margin-top:10px;"><strong>Summary</strong></div>`;
       html += `<div class="nb-item">${escHtml(art.summary)}</div>`;
@@ -1748,6 +1769,145 @@ function closeModel(){
 function toggleModelQ(num){
   const card = document.getElementById('model-q-'+num);
   card.classList.toggle('expanded');
+}
+
+// ── My Notes & Drafts compilation ───────────────────────────
+function collectMyNotesAndDrafts(){
+  const lectureNotes = [];
+  const assignmentDrafts = [];
+
+  // Walk DATA to find every lecture's notes (notesData['lec-N'])
+  const seenLecs = new Set();
+  DATA.forEach(w=>{
+    w.sections.forEach(s=>{
+      s.tasks.forEach(task=>{
+        if(task.lec && !seenLecs.has(task.lec)){
+          seenLecs.add(task.lec);
+          const note = notesData['lec-'+task.lec];
+          if(note && note.trim()){
+            lectureNotes.push({ label: task.n, weekId: w.id, content: note.trim() });
+          }
+        }
+      });
+    });
+  });
+
+  // Walk DATA to find every draft (draftsData[tid])
+  DATA.forEach(w=>{
+    w.sections.forEach((s,si)=>{
+      s.tasks.forEach((task,ti)=>{
+        if(task.draft){
+          const id = tid(w.id,si,ti);
+          const draft = draftsData[id];
+          if(draft && draft.trim()){
+            assignmentDrafts.push({ label: task.n, weekId: w.id, content: draft.trim() });
+          }
+        }
+      });
+    });
+  });
+
+  return { lectureNotes, assignmentDrafts };
+}
+
+function openSummary(){
+  const { lectureNotes, assignmentDrafts } = collectMyNotesAndDrafts();
+  const body = document.getElementById('summary-page-body');
+  let html = '';
+
+  const totalWords = (arr)=>arr.reduce((sum,item)=>sum + item.content.trim().split(/\s+/).filter(Boolean).length, 0);
+  const totalCount = lectureNotes.length + assignmentDrafts.length;
+
+  if(totalCount === 0){
+    html = `<div class="nb-placeholder">No notes or drafts yet. As you write lecture notes or work on assignment drafts, they'll automatically appear here for easy reference and export.</div>`;
+  } else {
+    html += `<div class="nb-item" style="margin-bottom:16px;">${lectureNotes.length} lecture note${lectureNotes.length===1?'':'s'}, ${assignmentDrafts.length} assignment draft${assignmentDrafts.length===1?'':'s'} — ${totalWords(lectureNotes)+totalWords(assignmentDrafts)} words total.</div>`;
+    html += `<button class="filter-btn" style="background:var(--green);color:#fff;border:none;margin-bottom:18px;width:100%;" onclick="exportSummaryToWord()">⬇️ Export All to Word</button>`;
+
+    if(lectureNotes.length){
+      html += `<div class="nb-section-heading" style="font-size:15px;margin-top:8px;">My Lecture Notes</div>`;
+      lectureNotes.forEach(item=>{
+        html += `<div class="model-q-card" style="--q-color:var(--green);margin-bottom:10px;">`;
+        html += `<div style="font-weight:700;font-size:14px;margin-bottom:6px;">${escHtml(item.label)} <span style="color:var(--muted);font-weight:400;font-size:12px;">(Week ${item.weekId})</span></div>`;
+        html += `<div class="nb-item" style="border-left:none;padding-left:0;white-space:pre-wrap;">${escHtml(item.content)}</div>`;
+        html += `</div>`;
+      });
+    }
+
+    if(assignmentDrafts.length){
+      html += `<div class="nb-section-heading" style="font-size:15px;margin-top:18px;">My Assignment Drafts</div>`;
+      assignmentDrafts.forEach(item=>{
+        html += `<div class="model-q-card" style="--q-color:#B5651D;margin-bottom:10px;">`;
+        html += `<div style="font-weight:700;font-size:14px;margin-bottom:6px;">${escHtml(item.label)} <span style="color:var(--muted);font-weight:400;font-size:12px;">(Week ${item.weekId})</span></div>`;
+        html += `<div class="nb-item" style="border-left:none;padding-left:0;white-space:pre-wrap;">${escHtml(item.content)}</div>`;
+        html += `</div>`;
+      });
+    }
+  }
+
+  body.innerHTML = html;
+  document.getElementById('summary-page').classList.add('open');
+  window.scrollTo(0,0);
+}
+
+function closeSummary(){
+  document.getElementById('summary-page').classList.remove('open');
+}
+
+async function exportSummaryToWord(){
+  if(typeof docx === 'undefined'){
+    alert('The Word export library failed to load. Check your internet connection and try again.');
+    return;
+  }
+  const { lectureNotes, assignmentDrafts } = collectMyNotesAndDrafts();
+  try{
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+    const paragraphs = [
+      new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun(currentCourse==='hr' ? 'Helping Relationships — My Notes & Drafts' : 'Dynamics of Biblical Change — My Notes & Drafts')] }),
+      new Paragraph({ children: [new TextRun("")] }),
+    ];
+    const addGroup = (title, items)=>{
+      if(!items.length) return;
+      paragraphs.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun(title)] }));
+      items.forEach(item=>{
+        paragraphs.push(new Paragraph({ children: [new TextRun({text: `${item.label} (Week ${item.weekId})`, bold: true})] }));
+        item.content.split(/\n/).forEach(line=>{
+          paragraphs.push(new Paragraph({ children: [new TextRun(line)] }));
+        });
+        paragraphs.push(new Paragraph({ children: [new TextRun("")] }));
+      });
+    };
+    addGroup('My Lecture Notes', lectureNotes);
+    addGroup('My Assignment Drafts', assignmentDrafts);
+
+    const doc = new Document({
+      styles: {
+        default: { document: { run: { font: "Calibri", size: 24 } } },
+        paragraphStyles: [
+          { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+            run: { size: 32, bold: true, font: "Calibri" }, paragraph: { spacing: { before: 240, after: 240 } } },
+          { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
+            run: { size: 26, bold: true, font: "Calibri", color: "1D9E75" }, paragraph: { spacing: { before: 280, after: 160 } } },
+        ]
+      },
+      sections: [{
+        properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
+        children: paragraphs
+      }]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (currentCourse==='hr' ? 'HR' : 'DBC') + '_My_Notes_and_Drafts.docx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }catch(e){
+    alert('Something went wrong creating the Word file: ' + e.message);
+  }
 }
 
 // ── Draft / Assignment writing ──────────────────────────────
@@ -7490,124 +7650,160 @@ const HR_READINGS = {
     {
       title: "Biblical Counseling at CCEF: Our Mission",
       author: "CCEF",
+      url: "https://www.ccef.org/about/",
       thesis: "CCEF's mission is to restore Christ to counseling and counseling to the church, treating biblical counseling not as a trademark but as a shared body of work rooted in Christ's relevance to every human struggle.",
-      summary: "CCEF describes its work in two halves of one mission. First, restoring Christ to counseling: because Jesus knows and cares about every personal and interpersonal struggle, he is preeminently relevant to the counseling process, not an afterthought to it. Second, restoring counseling to the church: CCEF sees the body of Christ as God's primary context for change, and positions itself as an extension of the local church rather than a replacement for it. Four 'building blocks' describe how CCEF pursues this mission: remaining rooted in Christ personally, corporately, and doctrinally; creating fresh, faithful resources that go deeper into Scripture and life's troubles; equipping people through hands-on training; and making a critical contribution to local churches worldwide.",
+      summary: "CCEF opens by clarifying what it means by 'biblical counseling' — not a protected brand name, but a shared, ongoing body of work that anyone can contribute to. That body of work is concerned with describing the troubles people actually face, how those troubles are experienced from the inside, how God speaks into them, and how believers help each other with wisdom and love. From there, the mission statement splits into two complementary halves. The first half — restoring Christ to counseling — argues that because every person carries personal and interpersonal struggles, and because Jesus Christ already knows those struggles intimately and cares about strugglers, he is not a peripheral or optional add-on to the counseling process but its most relevant resource. CCEF says it sees him bringing about real, substantive change in people's lives every day, and names this conviction as its 'heritage and heartbeat' — the thing that has animated its work from the start. The second half — restoring counseling to the church — makes a parallel but distinct claim: that the body of Christ, not a counseling office, is God's primary context for change. CCEF positions itself explicitly as an extension of the local church rather than a replacement for it, existing to serve and promote the church's own ministry rather than to draw people away from their congregations and into a separate professional system. The practical outworking of 'restoring counseling to the church' is that the gospel itself is meant to be preached, taught, and counseled with relevance to individual people — not kept abstract — and CCEF's overarching goal is equipping ordinary Christians for this kind of life and ministry, not just training a small class of professional specialists. The mission statement closes with four named 'building blocks' that describe CCEF's strategic path forward: (1) Remaining Connected to Christ — staying rooted in him personally, corporately, and doctrinally; (2) Breaking New Ground — creating faithful, fresh, and timely resources that dig wider and deeper into Scripture and the troubles of life; (3) Equipping People — including genuine hands-on feedback and training, not just lecture-style instruction; and (4) Making a Critical Contribution to the Church — designing everything CCEF produces to be as accessible as possible to churches specifically, with the explicit goal of strengthening local congregations worldwide, not merely building CCEF's own institutional reach.",
       points: [
-        "Biblical counseling is treated as a shared body of work, not a protected trademark — many contribute to it.",
-        "Mission part 1: Christ is restored to counseling because he is genuinely relevant to every struggle, not merely a religious add-on.",
-        "Mission part 2: counseling is restored to the church because the body of Christ is God's primary context for transformation.",
-        "Four building blocks: remaining connected to Christ, breaking new ground, equipping people, and making a critical contribution to the church.",
+        "Biblical counseling is framed as a shared body of work that many contribute to, not a protected trademark belonging exclusively to CCEF.",
+        "Mission half 1: Christ is restored to counseling because he genuinely knows and cares about every struggle, making him the most relevant resource available — not a religious add-on layered onto secular technique.",
+        "Mission half 2: counseling is restored to the church because the body of Christ, not a counseling office, is God's primary context for change; CCEF sees itself as serving and extending the local church rather than replacing it.",
+        "The gospel is meant to be preached, taught, AND counseled with relevance to individual people — counseling is one of three necessary channels, not an afterthought to preaching and teaching.",
+        "Building block 1, Remaining Connected to Christ: staying rooted in him personally, corporately, and doctrinally — three distinct dimensions of connection, not just one.",
+        "Building block 2, Breaking New Ground: creating resources that go both wider AND deeper — addressing more topics, and addressing each one with more depth, simultaneously.",
+        "Building block 3, Equipping People: explicitly includes hands-on feedback and training, distinguishing this from merely producing content people read or watch passively.",
+        "Building block 4, Making a Critical Contribution to the Church: the success measure is church-strengthening, not CCEF's own visibility or growth.",
       ],
       takeaways: [
-        "CCEF sees itself as serving and extending the local church, not competing with or replacing it.",
-        "Equipping ordinary Christians for one-another ministry is as central to the mission as professional counseling itself.",
+        "CCEF sees itself as serving and extending the local church, not competing with or replacing it — worth remembering anytime biblical counseling might seem to function as a stand-alone alternative to church community.",
+        "Equipping ordinary Christians for one-another ministry is treated as equally central to the mission as training professional counselors.",
+        "The four building blocks function as a self-check: any specific CCEF resource or training effort should be traceable back to at least one of them.",
       ],
     },
     {
       title: "Our Beliefs & Brief History of Pastoral Care",
       author: "CCEF",
+      url: "https://www.ccef.org/about/beliefs-and-history/",
       thesis: "CCEF's beliefs are rooted in historic Christian orthodoxy and the unique authority of Scripture, and its founding in 1968 was a direct response to the 20th-century displacement of Scripture from pastoral care by secular psychology.",
-      summary: "CCEF affirms the historic creeds of the church (Apostles' Creed, Nicene Creed, Westminster Confession, Heidelberg Catechism) and the complete trustworthiness of Scripture, while seeking to minister across a range of theological traditions within the church. The brief history traces pastoral care from the early church through the Reformation and Puritans, noting that for 1900 years Scripture was the basis for diagnosing and addressing human struggles. This changed with Sigmund Freud and the rise of secular psychology in the late 1800s, which displaced biblical categories (sin, redemption) with secular ones (mental health, mental illness) — even in many seminaries' pastoral care training. In response, Jay Adams and John Bettler founded CCEF in 1968 outside Philadelphia, launching what became the biblical counseling movement. Later generations built on this foundation with increased sensitivity to suffering, motivation, and engagement with the wider culture.",
+      summary: "This document operates in two connected parts: a statement of beliefs, and a brief history explaining why those beliefs needed restating in the first place. On beliefs, CCEF affirms the unique authority of Scripture and subscribes to the historic creeds of the early church and Reformation — the Apostles' Creed, the Nicene Creed, the Westminster Confession of Faith, the London Baptist Confession, and the Heidelberg Catechism. Even though CCEF is explicitly Protestant and grounded in the Reformed tradition, it states a deliberate commitment to minister to and with Christians from a range of theological perspectives, rather than restricting its usefulness to one narrow denominational lane. Several further commitments follow from these core beliefs: because God teaches people to see the world as he sees it, CCEF commits to the complete trustworthiness and primacy of Scripture; because God's work in human life unfolds historically, CCEF commits to a redemptive-historical theological framework — understanding the Bible as one unfolding story rather than a flat collection of isolated teachings; because God's saving work creates a people for himself, CCEF commits to serving the visible church rather than operating as an independent parachurch entity disconnected from congregational life; and because there is one body and one Spirit, CCEF commits to serving Christians across many different denominational associations. Two further commitments address how CCEF engages the wider world: cultural sensitivity (because God's ways and words are relevant across time, place, and people) and cultural engagement (because the church is called to move toward the world redemptively rather than retreating into defensive or hostile isolation). The history section then explains the occasion for founding CCEF in 1968. It traces pastoral care back to the first-century church, through high points like the early church fathers, the Reformation, the Puritans, and Jonathan Edwards — noting that for roughly the first 1,900 years of church history, Scripture was the broadly agreed-upon basis for diagnosing both the psychological-spiritual and behavioral struggles people faced. This long-standing consensus was disrupted by the rise of modern secular psychology, pioneered by Sigmund Freud in the late 1800s. Within a relatively short span of time, the historic biblical categories of creation, fall, and redemption were displaced — even within many seminaries' own pastoral care training — by secular categories of mental health and mental illness. Jay Adams and John Bettler founded CCEF outside Philadelphia in 1968 as a direct, deliberate response to this displacement, launching what became known as the biblical counseling movement. The document closes by acknowledging that CCEF continues to develop these convictions rather than treating them as a finished system, and that it seeks constructive, ongoing relationships with professional, clinical counselors even where real differences remain.",
       points: [
-        "CCEF affirms historic creeds and confessions while ministering across a range of theological traditions.",
-        "For the first 1900 years of church history, Scripture was the agreed basis for addressing human struggles.",
-        "Freud's secular psychology (late 1800s) displaced biblical categories of creation, fall, and redemption with secular categories of mental health and illness — even in seminary pastoral care training.",
-        "Jay Adams and John Bettler founded CCEF in 1968 as a direct response to this displacement.",
-        "Later generations of CCEF leadership added increased sensitivity to suffering, motivation, the centrality of the gospel, and cultural engagement.",
+        "CCEF affirms five historic creeds/confessions (Apostles' Creed, Nicene Creed, Westminster Confession, London Baptist Confession, Heidelberg Catechism) while still ministering across a range of theological traditions within the church.",
+        "Seven distinct theological commitments are named, each explicitly derived from a prior belief: trustworthiness of Scripture, redemptive-historical framework, service to the visible church, ecumenical breadth across denominations, cultural sensitivity, and cultural engagement.",
+        "For roughly 1,900 years — the vast majority of church history — Scripture was the broadly shared basis for diagnosing both psychological-spiritual and behavioral human struggles.",
+        "Sigmund Freud's late-1800s secular psychology displaced biblical categories (creation, fall, redemption) with secular categories (mental health, mental illness) — even inside many seminaries' own pastoral care curricula.",
+        "Jay Adams and John Bettler founded CCEF in 1968, just outside Philadelphia, as a direct, intentional response to this displacement — not as an independent invention disconnected from church history.",
+        "CCEF explicitly frames its own theology as a continuing, developing project rather than a finished, closed system.",
+        "CCEF states a commitment to constructive relationships with professional clinical counselors even amid genuine theological disagreement, rather than only critique or separation.",
       ],
       takeaways: [
-        "Biblical counseling's history is a recovery project — returning Scripture to its historic primacy in pastoral care, not inventing something new.",
-        "CCEF's own theology has matured over decades, becoming more attentive to suffering and culture without abandoning its founding convictions.",
+        "Biblical counseling's history is fundamentally a recovery project — restoring Scripture to a role it held for most of church history — rather than an invention of something entirely new.",
+        "CCEF's own theology has continued to mature and add nuance over time (later sections of the fuller history note increased attention to suffering, motivation, and cultural engagement) without abandoning its founding convictions.",
+        "Worth remembering when biblical counseling is criticized as 'simplistic': CCEF's own stated self-understanding includes an explicit acknowledgment of an unfinished, still-developing body of belief.",
       ],
     },
     {
       title: "Our Distinctives",
       author: "CCEF",
+      url: "https://www.ccef.org/about/",
       thesis: "Seven recurring themes run through CCEF's teaching: a personal God who draws near, Scripture as the lens for everything, the embodied complexity of persons, the active heart, change that follows a path but not a script, counseling at home in the church, and respectful engagement with other voices.",
-      summary: "This document names seven distinctives that recur throughout CCEF's literature. (1) The triune God draws near to us personally through Christ, which is why relationships and human connection matter so much. (2) Scripture comes from the mouth of God and must shape not just what we say but how and why we listen — even secular observations get 'translated' back into the language of Scripture. (3) We are embodied souls shaped by many influences (body, people, culture, money, spiritual forces) with the body uniquely both affecting us and being us. (4) Our hearts are active, with layers from natural desires up through moral desires and the choice to turn toward or away from God. (5) Change follows a path (knowing the person, knowing God) but never a fixed script — humility is essential since no two people are helped the same way. (6) Counseling is pastoral, at home in the church, and is one-another ministry carried out by every believer. (7) Biblical counseling engages respectfully with other Christian and secular voices, always returning to the question: who is the Lord and what has he said?",
+      summary: "This document names seven distinctives that recur across the whole of CCEF's literature and teaching — a kind of common core beneath many different specific topics. Distinctive one: the triune God — Father, Son, and Spirit — has always existed in reciprocal fellowship and unity, and has created humanity to participate in that very fellowship; he welcomes people to himself through Jesus Christ, with the Spirit connecting believers to Jesus as the only way to the Father. This is named as the theological root of CCEF's strong interest in relationship and human connection generally — it isn't merely a counseling technique preference, but flows from who God himself is. Distinctive two: Scripture comes from the mouth of God himself, and this status must shape not only the content of what counselors say but the manner and motivation behind how and why they listen to people at all — even genuinely useful secular observations about human behavior get 'translated' back into the interpretive language of Scripture rather than left to stand on purely secular terms. Distinctive three: human beings are embodied souls, shaped by a wide range of influences — the body itself, other people, surrounding culture, money, and even spiritual forces — with the body occupying a uniquely double role of both affecting a person and, in some sense, simply being that person; this distinctive becomes most practically important when caring for someone whose neurology or physical condition differs noticeably from the counselor's own. Distinctive four: the human heart is active, not passive, with describable layers — starting from natural desires and emotions, moving inward toward moral desires and an active conscience, and reaching down to the very center of a person's life where they either face God or turn away from him; this activity reveals whether someone's deepest orientation is toward or away from God, not merely whether their outward behavior looks acceptable. Distinctive five: real change follows a recognizable path — broadly, knowing the person and knowing what God says — but this path is never reducible to a fixed, one-size-fits-all script, because the care of souls is not formulaic or predictable; genuine humility is essential here, since no two people are helped in identical ways, and CCEF describes a discipline of looking for the good, the hard, and the sinful in a person's life, deliberately in that order, rather than leading with diagnosis of what's wrong. Distinctive six: counseling, understood as the care of souls, is pastoral by nature and is genuinely at home in the church — it is one-another ministry that Scripture calls every believer to (Ephesians 4:15), sharing the same fundamental interests as the preaching of the Word, even though its setting (face-to-face conversation) differs; from this home base in the church, biblical counseling also moves outward into conversations with neighbors, into parachurch ministries, and even into professional counseling offices, without ceasing to be rooted in the church's own ministry. Distinctive seven: biblical counseling engages respectfully and seriously with other Christian and secular voices on human struggle, rather than dismissing them outright — but it always tests what it learns against one controlling question: who is the Lord, and what has he actually said? Genuine insight from any source gets received gratefully and then reinterpreted through that Scriptural lens, rather than accepted on its own secular terms.",
       points: [
-        "Distinctive 1: the personal God gets personal with us through Christ — the source of our interest in relationship and connection.",
-        "Distinctive 2: Scripture comes from the mouth of God and must shape both the content and the manner of all our counsel.",
-        "Distinctive 3: we are embodied souls — bodies both affect us and are us, which matters most when people differ from us neurologically or physically.",
-        "Distinctive 4: our hearts are active, with natural desires, emotions, and deeper moral desires revealing whether we turn toward or away from God.",
-        "Distinctive 5: help follows a path (know the person, know God) but never a fixed script; we look for the good, hard, and sinful — in that order.",
-        "Distinctive 6: counseling is pastoral, at home in the church, and carried out by every believer, not only professionals.",
-        "Distinctive 7: biblical counseling engages respectfully with other Christian and secular voices, testing everything against who the Lord is and what he has said.",
+        "Distinctive 1: the triune God's own eternal, reciprocal fellowship is the theological root of CCEF's emphasis on relationship — not merely a counseling preference, but flowing from who God himself is.",
+        "Distinctive 2: even useful secular observations about behavior get 'translated' back into Scripture's interpretive language rather than left to stand on purely secular terms.",
+        "Distinctive 3: the body plays a uniquely double role — it both affects the person AND, in some sense, simply is the person — which matters most when someone's neurology or physical condition differs noticeably from the counselor's own.",
+        "Distinctive 4: the heart has describable layers, from natural desires and emotions inward to moral desires and conscience, down to the deepest point of facing God or turning from him.",
+        "Distinctive 5: care follows a path (knowing the person, knowing God) but never a fixed script; CCEF names a specific discipline — look for the good, the hard, and the sinful, deliberately in that order.",
+        "Distinctive 6: biblical counseling is pastoral, at home in the church, and rooted in Ephesians 4:15's call to one-another ministry carried out by every believer, not only credentialed professionals.",
+        "Distinctive 6 (continued): from its home in the church, biblical counseling legitimately extends into neighbor conversations, parachurch ministry, and professional counseling offices without losing its churchly roots.",
+        "Distinctive 7: other Christian and secular voices are engaged respectfully and can offer real insight, but everything is ultimately tested against who the Lord is and what he has said.",
       ],
       takeaways: [
-        "\"We look for the good, hard, and sinful — in that order\" is a concrete discipline worth remembering in every conversation.",
-        "The body is treated as a genuine source of both blessing and limitation, not merely a spiritual afterthought.",
+        "\"Look for the good, the hard, and the sinful — in that order\" is a concrete, memorable discipline worth applying in any conversation, not just formal counseling.",
+        "The body is treated as a genuine source of both blessing and limitation in its own right, not merely a spiritual afterthought to be managed or ignored.",
+        "Distinctive 7 offers a useful test for engaging any secular psychology or self-help material: receive genuine insight gratefully, then deliberately reinterpret it through Scripture rather than adopting it on its own terms.",
       ],
     },
     {
       title: "Humility: Rarely Popular, Always Essential",
       author: "Ed Welch",
+      url: "https://www.ccef.org/humility-rarely-popular-always-essential/",
       thesis: "True humility is not humiliation or passive silence, but living before God in dependence — and from that posture, real strength, wisdom, and even honor flow, while pride (humility's opposite) lies behind nearly every kind of sin.",
-      summary: "Welch confronts the modern suspicion that humility is weak or feminizing, arguing instead that dependence on God is simply how reality works — \"I need Jesus\" is the daily refrain of a properly functioning heart. He corrects a common misunderstanding using the story of a husband who decided humility meant never defending himself or claiming any rights at home; the experiment failed within two days because it missed humility's true foundation. Genuine humility starts before God and stays there, which then overflows into how we treat others — freeing us from needing to protect our reputation and opening space to ask, \"What is the best way to love, now?\" Welch walks through Psalm 40 as a psalm that holds together both our sufferings and our sins, showing a humble heart that needs Jesus for both. He closes by connecting this to Jesus' own Beatitude — \"blessed are the poor in spirit\" — and promises that as we humble ourselves before God, we paradoxically become bigger, with more influence, not less.",
+      summary: "Welch opens by naming the cultural mood directly: this era treats humility as weak, small, ineffective, even 'cowardice-in-disguise' — part of what some perceive as the broader feminization of culture — with personal boasting more often treated as a sign of healthy confidence than something to be ashamed of. He immediately complicates this by noting that arguably every era in history has shared this same basic suspicion of humility, with power and strength functioning as the real, operative human ethic regardless of period. For Christians specifically, he argues, this makes humility worth even more careful consideration, since our honor, strength, wisdom, and entire relationship with God depend on getting it right. His foundational claim: God's people live by faith, and there simply is no other way to live as a creature — \"I need Jesus\" is the daily refrain of a heart that is functioning properly, not a sign of weakness or failure. We are dependent creatures by design, needing help from other people every single day, whether we work from home alone or live isolated in the Alaskan wilderness; only a powerful self-deception — and Welch names pride specifically as exactly this kind of strong delusion — could convince us otherwise. He then directly corrects a common misunderstanding of humility using a specific, concrete story: a husband and father heard a sermon on being a servant and concluded that humility meant he should never again defend himself or claim any rights within his own home, reasoning from Matthew 7:3–5 that the log in his own eye must be larger than anyone else's. Welch reports that within two days, this experiment was, rightly, in ruins — not because the man's sincerity was lacking, but because his approach fundamentally missed what is most important about humility. Humility is not silence in the face of mistreatment. The actual foundation is this: humility starts before God, and stays there. From that starting point, dependence on God overflows naturally into daily relationships — in exactly the same way that someone's pride or independence before God will inevitably show up in something as mundane as how they drive a car or how attentively they listen to the people around them. Welch ties this to our basic identity as creatures who belong to God and need his ongoing care simply to take another breath; when prideful, demanding anger contaminates a relationship, James 4:10's call to humble ourselves before God becomes the necessary corrective — not primarily a call to be nicer to the other person, but to return to right standing before God first. Reframed this way, humility becomes genuinely liberating rather than diminishing: it means you no longer have to protect your own reputation or react defensively to every perceived slight, and you no longer have to insist on being right all the time. Instead, real humility creates actual space in the heart to ask a more basic, freeing question: \"What is the best way to love, now?\" When someone else overreacts in anger or irritability toward you, humility gives you the strength to pursue that person with curiosity rather than retaliation — to ask whether you've actually wronged them, or whether they're carrying sorrows and frustrations from somewhere else entirely. Welch frames this kind of patient pursuit as an expression of sheer power, not weakness — \"love that cannot be stopped,\" and humanity functioning exactly as it was designed to. He develops the theme further through Psalm 40, showing how the psalm holds together both our sufferings (\"I waited patiently for the Lord\") and our sins (\"my iniquities have overtaken me\") as two things that a genuinely humble heart brings honestly to Jesus together, rather than treating only one as worth confessing. The piece closes by connecting all of this to Jesus' own Beatitude — \"blessed are the poor in spirit\" (Matthew 5:3) — as the doorway into our truest, most fully intended humanity, and with a striking, paradoxical promise: as you humble yourself before God, you become bigger, with more influence, not less. Welch states plainly that you will love this kind of life, and other people will notice the difference.",
       points: [
-        "Modern culture treats humility as weak; Scripture treats it as the only way dependent creatures can rightly live.",
-        "A husband's failed experiment in never defending himself shows that humility is not silence in the face of mistreatment — that misses what's most important about it.",
-        "Humility starts before God and overflows into daily relationships, the same way pride before God affects how we drive or listen to others.",
-        "Pride — not specific behaviors — is Scripture's prominent way of naming sin: \"I want. Above. Never below.\"",
-        "Psalm 40 holds together both our sufferings (\"I waited patiently for the Lord\") and our sins (\"my iniquities have overtaken me\") as things humility addresses together.",
-        "Jesus' Beatitude — \"blessed are the poor in spirit\" — leads us into our true humanity, as God created us to be.",
+        "Modern culture broadly treats humility as weak or even a sign of cultural feminization; Welch notes this suspicion of humility likely isn't unique to this era, but spans most of human history.",
+        "\"I need Jesus\" is named as the daily refrain of a properly functioning heart — not evidence of spiritual immaturity, but evidence the heart is working correctly.",
+        "A husband's well-intentioned but failed two-day experiment in never defending himself shows precisely what humility is NOT: silence in the face of mistreatment misses what's actually most important about it.",
+        "Humility starts before God and stays there first; only from that foundation does it overflow into daily relational humility — your posture before God shapes even small things like how you drive or listen.",
+        "James 4:10's call to \"humble yourselves before God\" is the corrective for prideful, demanding anger — note carefully that the call is to return to God first, not merely to be nicer to the other person.",
+        "Reframing humility as freedom: you no longer need to protect your reputation or insist on being right, which opens space to ask \"what is the best way to love, now?\" instead.",
+        "Pursuing an overreacting person with curiosity (\"have I wronged them? are they carrying something else?\") rather than retaliation is described as an expression of real strength and power, not passivity.",
+        "Psalm 40 models a humble heart bringing BOTH suffering (\"I waited patiently for the Lord\") and sin (\"my iniquities have overtaken me\") honestly to God together — not just confessing sin while hiding suffering, or vice versa.",
+        "Jesus' Beatitude \"blessed are the poor in spirit\" (Matt 5:3) is the doorway into true humanity, as God intended it — not a diminished, lesser version of being human.",
+        "The piece closes with a deliberately paradoxical promise: humbling yourself before God makes you bigger and more influential, not smaller — the opposite of what cultural intuition predicts.",
       ],
       takeaways: [
-        "Humility frees you from defending your reputation, opening space to ask \"what is the best way to love, now?\" instead.",
-        "Try praying Psalm 40 (or its closing verses) daily for a season, as Welch suggests, to grow in the closeness of God.",
+        "Humility frees you from defending your reputation or needing to be right, opening real space to ask \"what is the best way to love, now?\" in any conflict.",
+        "Try praying through Psalm 40 — or at least its closing verses — regularly for a season, as a way of practicing bringing both suffering and sin honestly to God in the same breath.",
+        "When you catch yourself reacting defensively to someone's anger or irritability, try the curiosity move Welch describes: ask what's actually going on with them before assuming the worst.",
       ],
     },
     {
       title: "Advent Begins in the Dark",
       author: "Darby Strickland",
+      url: "https://www.ccef.org/advent-begins-in-the-dark/",
       thesis: "Advent did not begin with cheerful lights but with people stumbling through real darkness — and the Light of Christ comes to find us in the midst of our anguish, not after it has already lifted.",
-      summary: "Strickland names the gap between the cultural picture of Advent (porch lights, sparkling trees) and the lived experience of those carrying sorrow or trauma, for whom the season can feel like the loneliest stretch of the year. She grounds this in Isaiah 9:2 — \"the people walking in darkness have seen a great light\" — and the actual world Jesus was born into: a teenage mother far from home, a violent king plotting murder, families fleeing in the night, a nation crushed under foreign rule. The Light arrives in the darkness, not after it lifts. She walks through three psalms (23, 27, 18) as companions that each reassure God's presence, steadiness, and rescue in the midst of danger and fear, and closes with the promise of Revelation 22 that one day night will be no more.",
+      summary: "Strickland opens by naming a real gap between the cultural picture of Advent — porch lights, sparkling trees, festive cheer — and the lived experience of anyone carrying genuine sorrow or trauma, for whom this particular season can feel like the loneliest, most isolating stretch of the entire year, precisely because everyone around them seems to be celebrating. Rather than glossing over this tension, she grounds the entire Advent season in Isaiah 9:2's blunt, honest naming of darkness: \"the people walking in darkness have seen a great light.\" This, she argues, is Advent's actual starting place — not sentimentality, but real shadows. She then walks through the concrete, historical details of the world Jesus was actually born into, deliberately resisting any softened or sanitized version of the nativity: a teenage girl giving birth far from home; a violent king (Herod) willing to murder every young boy in the region in his attempt to eliminate any threat to his throne; families forced to flee in the dead of night simply to survive; the powerful routinely exploiting the weak; slavery functioning as an ordinary, unremarkable feature of daily life; and the entire nation of Israel crushed under foreign occupation. This, she states plainly, is not calm. It is not bright. It is not sentimental — it more closely resembles a pot about to boil over than a peaceful nativity scene. And yet this is precisely where the Light appears. Crucially, Strickland argues that Isaiah is not merely announcing a shift in the world's general illumination, some abstract change in atmosphere — he is announcing a person, the Lord himself, who comes close to frightened and distressed hearts specifically. The Light arrives directly into the darkness; it does not wait politely on the sidelines until the darkness has already lifted on its own. Jesus does not require our anguish to recede first before he enters it. To make this concrete and personally usable, Strickland walks through three psalms as companions for those walking through real darkness during the season. Psalm 23 pictures the Shepherd walking with his sheep directly through the valley of the shadow of death — not merely waiting to meet them on the other side once they've already escaped it. Psalm 27 acknowledges that fear is genuinely real and does not pretend otherwise, while affirming that we belong to the One who is himself our light and our salvation, even in the immediate presence of that fear. Psalm 18 describes God in deliberately dramatic, almost violent terms — tearing open the very sky to rescue his people — emphasizing that he is not a distantly removed, hands-off deity but one who forcefully and personally intervenes for those he loves. Strickland closes by connecting this same God — the one who storms the heavens in Psalm 18 — directly to the helpless infant lying in a manger in Bethlehem, arguing these are the same person: still mighty, still moving toward us, still breaking into our particular darkness with his Light. She invokes the future promise of Revelation 22 that night itself will eventually be no more, and closes with a direct pastoral address: as Advent begins in the dark this year, may the reader remember that the Light has already come for them specifically, and that one day, exactly as Isaiah promised, the shadows will scatter and the night will finally lift for good.",
       points: [
-        "The cultural picture of Advent as bright and cheerful can deepen the isolation of those carrying real sorrow or trauma during the season.",
-        "The actual nativity story is full of danger, displacement, and violence — not calm or sentimental.",
-        "Jesus does not wait for our anguish to recede before entering it — the Light arrives in the darkness itself.",
-        "Psalm 23: \"the Shepherd walks with him\" through the valley, not just meeting us after we escape it.",
-        "Psalm 27: fear is real, but we belong to the One who is our light and salvation.",
-        "Psalm 18: God is described in dramatic, fierce terms — tearing open the sky to rescue his people, not staying distantly removed from their suffering.",
+        "The cultural picture of Advent (bright lights, cheerful trees) can unintentionally deepen the isolation of those carrying real sorrow or trauma during the holiday season, by making their darkness feel out of step with everyone else's celebration.",
+        "Isaiah 9:2 — \"the people walking in darkness have seen a great light\" — is named as Advent's actual, honest starting place, not a side note to be rushed past on the way to the manger.",
+        "The real nativity story is full of genuine danger, displacement, violence, and political oppression — not the calm, sentimental scene often pictured; Strickland deliberately lists Herod's murder plot, families fleeing at night, slavery, and foreign occupation as historical facts, not embellishment.",
+        "Isaiah's prophecy announces a PERSON who draws near to distressed hearts, not merely an abstract shift in atmosphere or mood — this distinction matters for how the prophecy gets applied personally.",
+        "Central claim: Jesus does not wait for anguish to recede before entering it — the Light arrives IN the darkness itself, not after the darkness has already lifted on its own.",
+        "Psalm 23: the Shepherd walks WITH the sheep through the valley of the shadow of death — he is present during the danger, not just waiting at the far end of it.",
+        "Psalm 27: fear is treated as real and is not minimized or argued away, while still affirming belonging to the God who is light and salvation even in fear's immediate presence.",
+        "Psalm 18: God is pictured in deliberately fierce, dramatic terms — tearing open the sky to rescue his people — emphasizing forceful, personal intervention rather than distant, passive sympathy.",
+        "Strickland explicitly identifies the God of Psalm 18's storm imagery as the same person lying in the manger — continuity between God's fierce rescuing power and Christ's humble, vulnerable arrival.",
+        "Closes with Revelation 22's promise that night itself will eventually cease to exist — Advent's darkness is temporary and has a definite, promised end point.",
       ],
       takeaways: [
-        "When caring for someone who finds the holiday season painful rather than joyful, this article offers language that validates the darkness rather than rushing past it to manufactured cheer.",
-        "Notice the difference between God meeting us once we escape a hard valley versus meeting us within it — the second is the actual biblical pattern.",
+        "When caring for someone who finds the holiday season painful rather than joyful, this article offers language that validates the darkness directly rather than rushing past it toward manufactured cheer.",
+        "The distinction between God meeting us AFTER we escape a hard valley versus meeting us WITHIN it is worth returning to — Strickland argues clearly for the second, with Psalm 23 as the textual anchor.",
+        "Useful resource to revisit each Advent season, or any time grief and a culturally 'festive' moment collide for someone you're caring for.",
       ],
     },
     {
       title: "Adult ADHD Brought Under Jesus",
       author: "Ed Welch",
+      url: "https://www.ccef.org/adult-adhd-brought-under-jesus/",
       thesis: "An ADHD diagnosis can be genuinely thrilling and useful — but Jesus is more thrilling still, and the real work is making sure he is never partitioned away from how we understand and respond to our own brain's strengths and weaknesses.",
-      summary: "Welch validates the relief many adults feel when an ADHD diagnosis finally explains a lifetime of feeling different — it counters the false story of being merely lazy or undisciplined. He's candid that medication often helps incrementally, like glasses after years of blurry vision, but stresses that medication should lose its place as someone's primary strategy. The more useful, ongoing work is finding specific words for one's own pattern of weaknesses (scattered attention, distorted sense of time, needing moderate stress to function, perfectionism) and strengths (creativity, flexibility, generosity). Welch is careful to note that brain and body differences are properly the domain of strengths and weaknesses, not right and wrong — that distinction belongs to the soul. He warns against settling for a neurotransmitter-only explanation, and against partitioning Jesus away from this whole conversation, illustrating the danger with King Asa, who sought physicians but never sought the Lord even amid worsening illness (2 Chron. 16:12).",
+      summary: "Welch opens by acknowledging upfront that there are many sources of information offering details and ongoing debates about adult ADHD, and positions his own piece more modestly — not as a comprehensive account, but as a handful of principles and signposts for those who specifically want Jesus to be in and over every part of this conversation. He validates, without qualification, the genuine relief many adults feel when an ADHD diagnosis finally captures a lifetime of feeling different in a bad way: the diagnostic description suggests, often for the first time, that the person is not merely lazy, and this realization can feel like very good news. Part of what makes this so meaningful, Welch notes, is discovering a \"like-brained tribe\" — other people who understand the experience from the inside and offer genuine compassion alongside practical ideas; he observes that people tend to understate just how pleasant it is to finally be accurately known and understood by others. On medication specifically, Welch is candid and measured: if someone decides to try it, they will often notice a benefit, though once they settle into it, that benefit tends to become incremental and may be more noticeable to the person themselves than to people around them. He offers a specific, memorable image for this: medication can feel like getting eyeglasses for the first time after years of unknowingly adapting to a blurry world. Crucially, though, he states plainly that medication should lose its place as a person's primary strategy over time — it is not nothing, but it is also not meant to be the whole answer. He then turns to the harder, more theologically careful question of cause: is there a definitive biological explanation for ADHD? His direct answer is \"there is none, at least not yet\" — but he immediately clarifies this does not mean there are no brain or physical contributions at all. His proposed framework for sorting this out: look for thoughts and behaviors that are best described as strengths and weaknesses, as distinct from those that are properly right or wrong. Right and wrong, he states, are the purview of the soul; strengths and weaknesses are the purview of the body. Working from this distinction, he argues Scripture itself gives reason to think of many signs of adult ADHD as physical rather than moral. He's also careful not to let this collapse into a single, tidy explanation — he explicitly warns against getting locked into a neurotransmitter-only account of ADHD, and lists several other possible contributing factors worth considering: allergies, OCD, a chaotic family history, scattered alertness connected to past trauma, and even an unsettled connection to Jesus Christ himself. The heart of the piece is its central warning: in all of this, Jesus is more thrilling than insight into adult ADHD — and yet, because ADHD is a regular, daily feature of someone's life, it would be reasonable to expect it to occupy real priority in their thinking; the actual danger Welch names is that Jesus too often gets partitioned away from these very matters that rightly occupy a person's daily attention, kept \"in reserve for a later day\" rather than brought into the present conversation. He invites the reader to simply overhear their own conversations, or their own inner monologue, and notice how rarely Jesus and ADHD actually meet in the same sentence — naming this gap as something worth deliberately working on. To illustrate the danger of this partitioning concretely, Welch turns to a sobering biblical example: King Asa of Judah, who was faithful to the Lord in his earlier years but grew proud and turned away from him over time. Even when Asa was afflicted with a disease late in his reign, 2 Chronicles 16:12 records that he sought help only from physicians and not from the Lord — and Welch uses this single verse as a warning of what happens when Jesus is not kept over absolutely everything in a person's life, including their medical and psychological care. The piece closes with a direct, practical charge: talk about Jesus as much as you talk about your ADHD; get to know him better. Welch quotes J. I. Packer's description of a relationship with Christ as something \"calculated to thrill a person's soul,\" naming this as the proper, highest aspiration — even higher than the genuine relief of an accurate diagnosis.",
       points: [
-        "An ADHD diagnosis can be thrilling because it replaces a self-story of laziness with an accurate description of one's actual experience.",
-        "Medication often helps incrementally but should lose its place as a person's primary strategy over time.",
-        "The deeper, ongoing work is finding specific words for your own pattern of weaknesses and strengths, not just accepting a label.",
-        "Brain and body differences are the domain of strengths/weaknesses; right and wrong remain the domain of the soul.",
-        "King Asa's failure (2 Chronicles 16:12) — seeking physicians but never seeking the Lord even in his illness — warns against partitioning Jesus away from medical or psychological care.",
-        "The goal is not choosing Jesus over treatment, but placing Christ in and over every treatment and strategy.",
+        "An ADHD diagnosis can be genuinely thrilling because it replaces a lifelong, painful self-story of laziness with an accurate description of one's actual lived experience.",
+        "Discovering a \"like-brained tribe\" who understands from the inside is named explicitly as part of the diagnosis's appeal — being accurately known is more pleasant than people tend to admit.",
+        "Medication's benefit is described as real but often incremental once someone settles into it — sometimes more noticeable to the person themselves than to others; Welch's specific image is \"eyeglasses after years of a blurry world.\"",
+        "Medication should lose its place as a person's PRIMARY strategy over time — not eliminated, but explicitly de-centered as the whole answer.",
+        "On causation: \"there is none, at least not yet\" regarding a single definitive biological explanation — but this doesn't rule out real brain or physical contributions.",
+        "Key distinction offered: right and wrong are the purview of the SOUL; strengths and weaknesses are the purview of the BODY — a tool for sorting moral questions from physical-difference questions.",
+        "Explicit warning against a neurotransmitter-only explanation; other named contributing factors include allergies, OCD, chaotic family history, trauma-related scattered alertness, and an unsettled relationship with Christ.",
+        "Central warning: Jesus too often gets partitioned away from ADHD-related conversations and \"kept in reserve for a later day\" rather than brought into the present, ongoing daily struggle.",
+        "King Asa (2 Chronicles 16:12) is used as a sobering biblical illustration: he sought physicians but never sought the Lord even amid worsening illness — a warning against partitioning Jesus away from medical or psychological care specifically.",
+        "Closing charge: talk about Jesus as often as you talk about your diagnosis; the relationship with Christ should remain the \"higher aspiration\" even above the genuine relief of accurate self-understanding.",
       ],
       takeaways: [
-        "Ask what you want from Jesus that only he can give (forgiveness, hope, the knowledge of his love) alongside whatever practical strategies or treatment you pursue.",
-        "Talk about Jesus as often as you talk about your diagnosis — don't let one crowd out the other.",
+        "Ask what you want from Jesus that only he can give (forgiveness, hope, the knowledge of his love) alongside — not instead of — whatever practical strategies, medication, or treatment you pursue for ADHD.",
+        "The right/wrong versus strengths/weaknesses distinction is broadly useful beyond ADHD specifically — it's a tool for evaluating any brain-based or body-based difference without rushing to a moral verdict.",
+        "Notice your own conversations (or inner monologue) this week: how often do Jesus and your particular struggle actually appear in the same sentence?",
       ],
     },
     {
       title: "Jesus Remembered You",
       author: "Lauren Whitman",
+      url: "https://www.ccef.org/jesus-remembered-you/",
       thesis: "From Isaiah's exiled people who despaired that God had forgotten them, to the thief on the cross asking to be remembered, Scripture's consistent answer is that God's commitment to remember his people is stronger than any human bond — and Jesus proved it by remembering us all the way to his own death.",
-      summary: "Whitman traces the theme of being remembered by God through Isaiah 49, where exiled Israel despairs that the Lord has forgotten them despite his sweeping promises of restoration. God's response uses two vivid images — a nursing mother who cannot forget her child, and his own people engraved on the palms of his hands — to argue that his remembrance is even more certain than a mother's bond. Centuries later, as Jesus faces growing opposition and a plot against his life, this same commitment holds: he does not turn away from his mission but sets his face toward Jerusalem and the cross. On the cross itself, the dying thief asks, \"Jesus, remember me when you come into your kingdom,\" and Jesus answers immediately with the promise of paradise. Whitman connects this to our own present experience of doubt and exile-like seasons, closing with the assurance that just as we are engraved on Christ's hands, his name will one day be on our foreheads (Rev. 22:4) — a mutual, unbreakable belonging.",
+      summary: "Whitman traces the theme of being remembered by God through Isaiah 49, where the exiled people of Israel sink into despair, concluding that the Lord has forgotten them entirely — this despite his earlier, sweeping promises of eventual restoration. God's response to this despair uses two deliberately vivid, almost provocative images. First, a nursing mother who cannot forget her own child — God takes what seems like a nearly impossible scenario (a mother forgetting the infant she's nursing) specifically to argue that his own commitment to remembering his people is even stronger than that maternal bond. Second, and to eliminate any further doubt, he follows this with the image of engraving — his people marked permanently on the palms of his own hands, an image that evokes lasting, physical permanence rather than a merely sentimental promise. How, Whitman asks on God's behalf, could he possibly forget his people when he has marked them onto his own body? Years pass between this promise and its fulfillment. God's prophetic words get passed down across generations; the Israelites eventually return from exile and rebuild the temple — yet not all of God's promises have been fulfilled even then, and the people continue to question whether he genuinely loves them. Whitman frames Jesus' actual arrival centuries later as God's answer to this ongoing doubt: the incarnation itself is the clearest revelation yet of who God truly is and the real depth of his love for his people — proof by action that he has not, in fact, forgotten them, delivered by sending his own Son in person rather than merely repeating the promise in words. As Jesus' ministry unfolds — preaching, forgiving, serving, healing — Whitman notes that the relentless compassion of the previously invisible God becomes fully visible for the first time in a human life. Even so, as his ministry progresses, real opposition develops, eventually escalating into an active campaign seeking his death; Jesus is shown to be fully aware of all of this as it happens in real time. This raises the dramatic tension Whitman wants the reader to sit with: will the people's resistance cause Jesus to forget his mission, to turn away from it under pressure? Her answer, rooted in Isaiah's earlier comfort, is firm: it will not. Just as a mother cannot forget her child, the God who has his people engraved on his own hands will not forget — and so even while facing fierce, escalating opposition, Jesus deliberately sets his face like flint toward Jerusalem, moving toward his own death where he will offer himself as a sacrifice for the sins of the world. On the cross itself, God's promise to remember his people reaches what Whitman calls its most profound demonstration: despite betrayal, malicious plotting against him, and brutal physical treatment, Jesus keeps his commitment to his people and willingly gives up his life for them. The criminal being crucified beside him cries out, in genuine desperation, \"Jesus, remember me when you come into your kingdom\" (Luke 23:42) — and Whitman lingers on the real, live question this raises: would Jesus actually remember him? The answer comes immediately: even while enduring what she describes as hellish suffering himself, Jesus turns to comfort the dying man directly: \"Truly, I say to you, today you will be with me in paradise\" (v. 43). The thief will not be forgotten — more than that, he will be with Jesus himself, in a bond Whitman describes as one that will never be broken. She closes by drawing this same, unchanged Jesus directly into the present moment: this is the very same Jesus who remembers his people today, and as readers approach the celebration of Easter, they bring their own doubts and their own exile-like seasons of questioning God's love amid ongoing sin and suffering. The article ends with a forward-looking image from Revelation 22:4 — just as believers are now engraved on Christ's hands, his own name will one day be written on their foreheads, a mutual, unbreakable seal of belonging in both directions — and a closing note of worship: for all eternity, believers will join heaven itself in singing, \"My Savior and my God, how you have remembered me!\"",
       points: [
-        "Isaiah 49: exiled Israel despairs that God has forgotten them, even after he promises sweeping restoration.",
-        "God's answer: a mother cannot forget her nursing child, yet his remembrance of his people is even more certain — symbolized by being engraved on his own hands.",
-        "Jesus' arrival is the clearest revelation yet of a God who does not forget — even as opposition to him grows, he does not turn from his mission.",
-        "The thief on the cross asks to be remembered (Luke 23:42); Jesus answers immediately with the promise of paradise.",
-        "We are engraved on Christ's hands, and one day his name will be on our foreheads (Rev. 22:4) — a mutual seal of belonging.",
+        "Isaiah 49: exiled Israel concludes God has forgotten them, despite his earlier, sweeping promises of eventual restoration — genuine, not merely rhetorical, despair.",
+        "God's first counter-image: a nursing mother cannot forget her own child — God deliberately uses a near-impossible scenario to argue his remembrance is even MORE certain than that bond.",
+        "God's second counter-image: being engraved on the palms of his own hands — permanence symbolized physically, not just promised verbally; \"how could he forget what is marked on his own body?\"",
+        "Jesus' incarnation is framed as God's direct, embodied answer to the people's accumulated doubt — proof delivered by action (sending his Son in person) rather than simply repeating the promise in words again.",
+        "As opposition to Jesus escalates into an active plot against his life, the narrative tension becomes explicit: will resistance cause him to turn from his mission? The text's answer is a firm no.",
+        "Jesus \"sets his face like flint toward Jerusalem\" even amid escalating, fierce opposition — deliberate, willing movement toward his own death, not passive resignation.",
+        "The thief's cry — \"remember me\" (Luke 23:42) — is treated as a live, uncertain question in the narrative moment, met immediately by Jesus' direct promise of paradise (v. 43), even while Jesus himself is enduring extreme suffering.",
+        "Closing image from Revelation 22:4: just as believers are now engraved on Christ's hands, his name will one day be written on THEIR foreheads — a deliberately mutual, two-directional seal of belonging.",
       ],
       takeaways: [
-        "When someone feels forgotten by God in a season of suffering, Isaiah 49:15-16 offers a concrete, vivid counter-image worth returning to.",
-        "The thief's simple request — \"remember me\" — models how little is needed to be met by Christ's full attention and promise.",
+        "When someone feels forgotten by God in a season of suffering, Isaiah 49:15–16's two images (the nursing mother, the engraved hands) offer a concrete, vivid counter-image worth returning to directly rather than abstract reassurance.",
+        "The thief's simple, desperate request — \"remember me\" — models how little is actually needed to be met by Christ's full attention and promise; useful when someone feels their faith or their request to God is too small or too late.",
+        "The mutual engraving image (Christ's hands now, our foreheads in Revelation 22:4) is a striking way to talk about belonging that goes both directions, not just God remembering us but us being permanently marked as his.",
       ],
     },
   ],
